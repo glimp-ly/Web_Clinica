@@ -562,6 +562,15 @@
     color: #fff;
 }
 
+@media (max-width:850px){
+    .container_cards{
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+    }
+}
+
 /*FOOTER*/
 
 .container{
@@ -655,4 +664,5 @@
         justify-content: flex-start;
         padding-top: 10px;
     }
+
 }
