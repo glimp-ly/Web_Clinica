@@ -48,7 +48,7 @@ $(document).ready(function () {
             const card = `
                 <div class="doctor-card">
                     <div class="doctor-image">
-                        <img src="${doctor.image}" alt="${doctor.name}" style="width: 120px; height: 120px; object-fit: cover; border-radius: 5px;">
+                        <img src="${doctor.image}" alt="${doctor.name}" style="object-fit: cover; border-radius: 5px;">
                     </div>
                     <div class="doctor-info">
                         <h3>${doctor.name}</h3>
