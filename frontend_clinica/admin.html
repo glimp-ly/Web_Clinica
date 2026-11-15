@@ -1,0 +1,732 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Administración — Clínica Centenario del Norte</title>
+    <link rel="icon" href="img/logo.png">
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/portales.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+    <button id="darkModeToggle" class="dark-mode-toggle" aria-label="Cambiar modo oscuro/claro">
+        <i class="fas fa-moon"></i>
+    </button>
+
+    <header class="portal-shell-header">
+        <div class="portal-shell-brand">
+            <a href="admin.html" class="logo-link">
+                <div class="logo">CLINICA <span class="color-sec">CENTENARIO DEL NORTE</span></div>
+            </a>
+            <span class="portal-role-pill"><i class="fa-solid fa-shield-halved"></i> Administración</span>
+        </div>
+        <div class="portal-shell-actions">
+            <div class="portal-user-chip" id="adminHeaderChip" style="display:none;">
+                <i class="fa-solid fa-user-gear" style="color:#0077b6;"></i>
+                <span id="adminNameDisplay">Administrador</span>
+            </div>
+            <a href="index.html" class="btn-portal btn-portal-outline" style="font-size:0.82rem; text-decoration:none;">
+                <i class="fa-solid fa-house"></i> Landing Pública
+            </a>
+            <button id="btnAdminLogout" class="btn-portal btn-portal-danger" style="display:none; font-size:0.82rem;">
+                <i class="fa-solid fa-right-from-bracket"></i> Cerrar Sesión
+            </button>
+        </div>
+    </header>
+
+    <main>
+        <!-- Auth Gate para Administradores -->
+        <div class="portal-wrapper" id="adminGateWrapper" style="display:none;">
+            <div id="adminAuthGate" class="portal-auth-gate">
+                <h2><i class="fa-solid fa-shield-halved"></i> Acceso Administrativo</h2>
+                <p class="sub">Portal exclusivo de Dirección Médica y Administración. Ingrese con sus credenciales autorizadas o cuenta Google institucional.</p>
+                <div id="adminForbiddenAlert" class="portal-alert portal-alert-error" style="display:none;"></div>
+                <form id="adminLoginForm">
+                    <div class="portal-form-group">
+                        <label for="admEmail">Correo de Administrador</label>
+                        <input type="email" id="admEmail" class="portal-input" placeholder="admin1@centenario.pe" required>
+                    </div>
+                    <div class="portal-form-group">
+                        <label for="admPass">Contraseña</label>
+                        <input type="password" id="admPass" class="portal-input" placeholder="••••••••" required>
+                    </div>
+                    <button type="submit" class="btn-portal btn-portal-primary" style="width:100%; padding:10px;">
+                        Ingresar al Panel de Control
+                    </button>
+                </form>
+                <button type="button" id="btnGoogleAdmin" class="btn-google-oauth">
+                    <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
+                    Ingresar con Google (Administración)
+                </button>
+                <div style="margin-top:14px; padding-top:12px; border-top:1px solid #d0d7de; font-size:0.8rem; color:#57606a;">
+                    <strong>Cuentas demo de Administrador:</strong>
+                    <div style="display:flex; gap:6px; margin-top:6px; flex-wrap:wrap;">
+                        <button type="button" class="btn-portal btn-portal-outline btn-demo-adm" data-email="admin1@centenario.pe" style="padding:4px 8px; font-size:0.75rem;">Admin 1 (Dirección)</button>
+                        <button type="button" class="btn-portal btn-portal-outline btn-demo-adm" data-email="admin2@centenario.pe" style="padding:4px 8px; font-size:0.75rem;">Admin 2 (Sistemas)</button>
+                    </div>
+                    <div style="margin-top:4px; font-size:0.74rem; color:#6a737d;">Contraseña: <code>Admin123!</code></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Workspace Principal de Administración -->
+        <div id="adminApp" class="portal-shell" style="display:none;">
+            <aside class="portal-sidebar" aria-label="Menú administrativo">
+                <div class="portal-sidebar-title">Panel Administrativo</div>
+                <nav class="portal-sidebar-nav">
+                    <button type="button" class="portal-sidebar-btn active" data-target="tab-resumen">
+                        <i class="fa-solid fa-chart-line"></i> Dashboard y Reportes
+                    </button>
+                    <button type="button" class="portal-sidebar-btn" data-target="tab-medicos">
+                        <i class="fa-solid fa-user-doctor"></i> Médicos y Horarios
+                    </button>
+                    <button type="button" class="portal-sidebar-btn" data-target="tab-campanas">
+                        <i class="fa-solid fa-bullhorn"></i> Campañas de Salud
+                    </button>
+                    <button type="button" class="portal-sidebar-btn" data-target="tab-farmacia">
+                        <i class="fa-solid fa-pills"></i> Inventario Farmacia
+                    </button>
+                    <button type="button" class="portal-sidebar-btn" data-target="tab-laboratorio">
+                        <i class="fa-solid fa-flask-vial"></i> Órdenes Laboratorio
+                    </button>
+                    <button type="button" class="portal-sidebar-btn" data-target="tab-atencion">
+                        <i class="fa-solid fa-comments"></i> FAQ y Afiliaciones
+                    </button>
+                    <button type="button" class="portal-sidebar-btn" data-target="tab-auditoria">
+                        <i class="fa-solid fa-lock"></i> Auditoría Ley 29733
+                    </button>
+                </nav>
+                <div class="portal-sidebar-footer">
+                    <a href="medico.html" class="portal-sidebar-link"><i class="fa-solid fa-stethoscope"></i> Ir a Portal Médico</a>
+                    <a href="index.html" class="portal-sidebar-link"><i class="fa-solid fa-globe"></i> Ver Sitio Público</a>
+                </div>
+            </aside>
+
+            <section class="portal-main">
+                <!-- PANEL 1: DASHBOARD Y REPORTES -->
+                <div id="tab-resumen" class="portal-panel active">
+                    <div class="portal-section-header">
+                        <div>
+                            <h2><i class="fa-solid fa-chart-line"></i> Dashboard Ejecutivo</h2>
+                            <p>Resumen de citas médicas, ingresos de farmacia, laboratorio y usuarios registrados.</p>
+                        </div>
+                        <button id="btnExportarCsv" class="btn-portal btn-portal-outline">
+                            <i class="fa-solid fa-file-csv"></i> Exportar CSV
+                        </button>
+                    </div>
+
+                    <div class="kpi-grid">
+                        <div class="kpi-card">
+                            <div class="kpi-label">Citas Registradas</div>
+                            <div class="kpi-value" id="statTotalCitas">0</div>
+                            <div class="kpi-sub" id="statCitasDesglose">Cargando...</div>
+                        </div>
+                        <div class="kpi-card">
+                            <div class="kpi-label">Citas Finalizadas</div>
+                            <div class="kpi-value" id="statFinalizadas" style="color:#176428;">0</div>
+                            <div class="kpi-sub" id="statNoShows">Inasistencias: 0</div>
+                        </div>
+                        <div class="kpi-card">
+                            <div class="kpi-label">Ingresos Farmacia</div>
+                            <div class="kpi-value" id="statVentasFarmacia">S/ 0.00</div>
+                            <div class="kpi-sub" id="statDescuentoEps">Cobertura EPS: S/ 0.00</div>
+                        </div>
+                        <div class="kpi-card">
+                            <div class="kpi-label">Ingresos Totales</div>
+                            <div class="kpi-value" id="statIngresosTotales" style="color:#029d56;">S/ 0.00</div>
+                            <div class="kpi-sub" id="statVentasLab">Lab: S/ 0.00</div>
+                        </div>
+                    </div>
+
+                    <div class="portal-card">
+                        <div class="portal-card-head">
+                            <h3><i class="fa-solid fa-chart-pie"></i> Demanda por Especialidad Médica</h3>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="portal-table">
+                                <thead>
+                                    <tr>
+                                        <th>Especialidad</th>
+                                        <th>Citas</th>
+                                        <th>Distribución</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tablaEspecialidadesResumen">
+                                    <tr><td colspan="3" class="portal-empty-msg">Cargando métricas...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="portal-card">
+                        <div class="portal-card-head">
+                            <h3><i class="fa-solid fa-users"></i> Cuentas de Usuario Registradas</h3>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="portal-table">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Nombre</th>
+                                        <th>Correo</th>
+                                        <th>Rol</th>
+                                        <th>Acceso</th>
+                                        <th>Estado</th>
+                                        <th>Registro</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tablaUsuariosSistema">
+                                    <tr><td colspan="7" class="portal-empty-msg">Cargando usuarios...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- PANEL 2: MÉDICOS Y HORARIOS -->
+                <div id="tab-medicos" class="portal-panel">
+                    <div class="portal-section-header">
+                        <div>
+                            <h2><i class="fa-solid fa-user-doctor"></i> Gestión de Médicos y Horarios</h2>
+                            <p>Alta de médicos al staff con acceso al portal, edición de turnos y estado activo.</p>
+                        </div>
+                        <button id="btnNuevoMedicoModal" class="btn-portal btn-portal-primary">
+                            <i class="fa-solid fa-plus"></i> Registrar Médico
+                        </button>
+                    </div>
+
+                    <div class="portal-card">
+                        <div class="portal-card-head">
+                            <h3>Staff Médico Registrado</h3>
+                            <input type="text" id="filterMedicos" class="portal-input" placeholder="Buscar por nombre, CMP o especialidad..." style="max-width:300px;">
+                        </div>
+                        <div class="table-responsive">
+                            <table class="portal-table">
+                                <thead>
+                                    <tr>
+                                        <th>CMP / DNI</th>
+                                        <th>Médico y Correo</th>
+                                        <th>Especialidad</th>
+                                        <th>Turnos / Días</th>
+                                        <th>Estado</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tablaMedicosAdmin">
+                                    <tr><td colspan="6" class="portal-empty-msg">Cargando staff médico...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- PANEL 3: CAMPAÑAS -->
+                <div id="tab-campanas" class="portal-panel">
+                    <div class="portal-section-header">
+                        <div>
+                            <h2><i class="fa-solid fa-bullhorn"></i> Gestión de Campañas de Salud</h2>
+                            <p>Creación, modificación de cupos y activación de campañas preventivas públicas.</p>
+                        </div>
+                        <button id="btnNuevaCampanaModal" class="btn-portal btn-portal-primary">
+                            <i class="fa-solid fa-plus"></i> Nueva Campaña
+                        </button>
+                    </div>
+
+                    <div class="portal-card">
+                        <div class="table-responsive">
+                            <table class="portal-table">
+                                <thead>
+                                    <tr>
+                                        <th>Campaña</th>
+                                        <th>Fechas</th>
+                                        <th>Cupos / Ocupación</th>
+                                        <th>Estado</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tablaCampanasAdmin">
+                                    <tr><td colspan="5" class="portal-empty-msg">Cargando campañas...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- PANEL 4: FARMACIA -->
+                <div id="tab-farmacia" class="portal-panel">
+                    <div class="portal-section-header">
+                        <div>
+                            <h2><i class="fa-solid fa-pills"></i> Catálogo e Inventario de Farmacia</h2>
+                            <p>Control de precios, stock en tiempo real, requisito de receta médica y disponibilidad.</p>
+                        </div>
+                        <button id="btnNuevoProductoModal" class="btn-portal btn-portal-primary">
+                            <i class="fa-solid fa-plus"></i> Agregar Producto
+                        </button>
+                    </div>
+
+                    <div class="portal-card">
+                        <div class="portal-card-head">
+                            <h3>Medicamentos e Insumos</h3>
+                            <input type="text" id="filterProductos" class="portal-input" placeholder="Buscar medicamento o categoría..." style="max-width:300px;">
+                        </div>
+                        <div class="table-responsive">
+                            <table class="portal-table">
+                                <thead>
+                                    <tr>
+                                        <th>Medicamento</th>
+                                        <th>Categoría</th>
+                                        <th>Precio (S/)</th>
+                                        <th>Stock</th>
+                                        <th>Receta</th>
+                                        <th>Estado</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tablaFarmaciaAdmin">
+                                    <tr><td colspan="7" class="portal-empty-msg">Cargando catálogo...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- PANEL 5: LABORATORIO -->
+                <div id="tab-laboratorio" class="portal-panel">
+                    <div class="portal-section-header">
+                        <div>
+                            <h2><i class="fa-solid fa-flask-vial"></i> Órdenes de Laboratorio Clínico</h2>
+                            <p>Seguimiento de muestras y publicación de resultados médicos por orden.</p>
+                        </div>
+                        <select id="filterLabEstado" class="portal-select" style="max-width:240px;">
+                            <option value="todos">Todos los estados</option>
+                            <option value="pendiente_muestra">Pendiente de muestra</option>
+                            <option value="en_proceso">En proceso</option>
+                            <option value="publicado">Publicado</option>
+                        </select>
+                    </div>
+
+                    <div class="portal-card">
+                        <div class="table-responsive">
+                            <table class="portal-table">
+                                <thead>
+                                    <tr>
+                                        <th>Orden / Fecha</th>
+                                        <th>Paciente / DNI</th>
+                                        <th>Análisis Solicitados</th>
+                                        <th>Total</th>
+                                        <th>Estado</th>
+                                        <th>Resultado</th>
+                                        <th>Acción</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tablaLabAdmin">
+                                    <tr><td colspan="7" class="portal-empty-msg">Cargando órdenes...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- PANEL 6: FAQ Y AFILIACIONES -->
+                <div id="tab-atencion" class="portal-panel">
+                    <div class="portal-section-header">
+                        <div>
+                            <h2><i class="fa-solid fa-comments"></i> Preguntas Frecuentes y Afiliaciones</h2>
+                            <p>Gestión de dudas enviadas por pacientes y seguimiento de solicitudes de afiliación.</p>
+                        </div>
+                    </div>
+
+                    <div class="portal-card">
+                        <div class="portal-card-head">
+                            <h3><i class="fa-solid fa-circle-question"></i> Preguntas de Usuarios (FAQ)</h3>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="portal-table">
+                                <thead>
+                                    <tr>
+                                        <th>Usuario / Correo</th>
+                                        <th>Pregunta</th>
+                                        <th>Respuesta Oficial</th>
+                                        <th>Estado</th>
+                                        <th>Acción</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tablaFaqAdmin">
+                                    <tr><td colspan="5" class="portal-empty-msg">Cargando preguntas...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="portal-card">
+                        <div class="portal-card-head">
+                            <h3><i class="fa-solid fa-address-book"></i> Solicitudes de Afiliación / Contacto</h3>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="portal-table">
+                                <thead>
+                                    <tr>
+                                        <th>DNI</th>
+                                        <th>Celular / Correo</th>
+                                        <th>Notas Admin</th>
+                                        <th>Estado</th>
+                                        <th>Fecha</th>
+                                        <th>Acción</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tablaContactosAdmin">
+                                    <tr><td colspan="6" class="portal-empty-msg">Cargando solicitudes...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- PANEL 7: AUDITORÍA Y NOTIFICACIONES -->
+                <div id="tab-auditoria" class="portal-panel">
+                    <div class="portal-section-header">
+                        <div>
+                            <h2><i class="fa-solid fa-lock"></i> Auditoría Ley 29733 y Notificaciones</h2>
+                            <p>Trazabilidad de accesos clínicos, mutaciones de datos y notificaciones enviadas.</p>
+                        </div>
+                        <button id="btnRefrescarAuditoria" class="btn-portal btn-portal-outline">
+                            <i class="fa-solid fa-rotate"></i> Actualizar
+                        </button>
+                    </div>
+
+                    <div class="portal-card">
+                        <div class="portal-card-head">
+                            <h3><i class="fa-solid fa-clipboard-list"></i> Bitácora de Auditoría</h3>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="portal-table">
+                                <thead>
+                                    <tr>
+                                        <th>Fecha</th>
+                                        <th>Usuario / Rol</th>
+                                        <th>Acción</th>
+                                        <th>Recurso</th>
+                                        <th>Detalle</th>
+                                        <th>IP</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tablaAuditoriaAdmin">
+                                    <tr><td colspan="6" class="portal-empty-msg">Cargando bitácora...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="portal-card">
+                        <div class="portal-card-head">
+                            <h3><i class="fa-solid fa-bell"></i> Notificaciones Emitidas</h3>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="portal-table">
+                                <thead>
+                                    <tr>
+                                        <th>Fecha</th>
+                                        <th>Canal</th>
+                                        <th>Destinatario</th>
+                                        <th>Asunto</th>
+                                        <th>Estado</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tablaNotificacionesAdmin">
+                                    <tr><td colspan="5" class="portal-empty-msg">Cargando notificaciones...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- MODAL: CREAR / EDITAR MÉDICO -->
+    <div id="modalMedico" class="portal-modal" style="display:none;">
+        <div class="portal-modal-content">
+            <div class="portal-modal-header">
+                <h3 id="modalMedicoTitulo"><i class="fa-solid fa-user-plus"></i> Registrar Médico</h3>
+                <button type="button" class="portal-modal-close" data-close="modalMedico">&times;</button>
+            </div>
+            <form id="formMedico">
+                <input type="hidden" id="medId">
+                <div class="portal-modal-body">
+                    <div class="portal-grid-2">
+                        <div class="portal-form-group">
+                            <label for="medNombre">Nombre Completo *</label>
+                            <input type="text" id="medNombre" class="portal-input" placeholder="Dr. Ricardo Mendoza" required>
+                        </div>
+                        <div class="portal-form-group">
+                            <label for="medCmp">CMP *</label>
+                            <input type="text" id="medCmp" class="portal-input" placeholder="CMP-058921" required>
+                        </div>
+                    </div>
+                    <div class="portal-grid-2">
+                        <div class="portal-form-group" id="grupoMedDni">
+                            <label for="medDni">DNI (8 dígitos) *</label>
+                            <input type="text" id="medDni" class="portal-input" maxlength="8" pattern="\d{8}" placeholder="45123698" required>
+                        </div>
+                        <div class="portal-form-group" id="grupoMedEmail">
+                            <label for="medEmail">Correo de Acceso al Portal *</label>
+                            <input type="email" id="medEmail" class="portal-input" placeholder="ricardo.mendoza@centenario.pe">
+                        </div>
+                    </div>
+                    <div class="portal-grid-2">
+                        <div class="portal-form-group">
+                            <label for="medEspecialidad">Especialidad *</label>
+                            <select id="medEspecialidad" class="portal-select" required></select>
+                        </div>
+                        <div class="portal-form-group">
+                            <label for="medExp">Años de Experiencia</label>
+                            <input type="number" id="medExp" class="portal-input" value="8" min="0">
+                        </div>
+                    </div>
+                    <div class="portal-grid-2">
+                        <div class="portal-form-group">
+                            <label for="medTelefono">Teléfono (9 dígitos)</label>
+                            <input type="text" id="medTelefono" class="portal-input" maxlength="9" value="999888777">
+                        </div>
+                        <div class="portal-form-group" id="grupoMedPass">
+                            <label for="medPassword">Contraseña Inicial (Portal Médico)</label>
+                            <input type="text" id="medPassword" class="portal-input" value="Medico123!">
+                        </div>
+                    </div>
+                    <div class="portal-form-group">
+                        <label for="medDias">Días de Atención</label>
+                        <input type="text" id="medDias" class="portal-input" value="Lunes,Martes,Miércoles,Jueves,Viernes,Sábado">
+                    </div>
+                    <div class="portal-grid-2">
+                        <label style="display:flex; align-items:center; gap:8px; font-size:0.86rem;">
+                            <input type="checkbox" id="medTurnoM" checked> Turno Mañana (08:00 - 13:00)
+                        </label>
+                        <label style="display:flex; align-items:center; gap:8px; font-size:0.86rem;">
+                            <input type="checkbox" id="medTurnoT" checked> Turno Tarde (14:00 - 19:00)
+                        </label>
+                    </div>
+                    <div class="portal-form-group" style="margin-top:12px;">
+                        <label for="medDesc">Perfil / Descripción</label>
+                        <textarea id="medDesc" class="portal-textarea" rows="2" placeholder="Especialista clínico..."></textarea>
+                    </div>
+                </div>
+                <div class="portal-modal-footer">
+                    <button type="button" class="btn-portal btn-portal-outline" data-close="modalMedico">Cancelar</button>
+                    <button type="submit" class="btn-portal btn-portal-primary">Guardar Médico</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL: CREAR / EDITAR CAMPAÑA -->
+    <div id="modalCampana" class="portal-modal" style="display:none;">
+        <div class="portal-modal-content">
+            <div class="portal-modal-header">
+                <h3 id="modalCampanaTitulo"><i class="fa-solid fa-bullhorn"></i> Nueva Campaña</h3>
+                <button type="button" class="portal-modal-close" data-close="modalCampana">&times;</button>
+            </div>
+            <form id="formCampana">
+                <input type="hidden" id="campId">
+                <div class="portal-modal-body">
+                    <div class="portal-form-group">
+                        <label for="campTitulo">Título de la Campaña *</label>
+                        <input type="text" id="campTitulo" class="portal-input" required>
+                    </div>
+                    <div class="portal-form-group">
+                        <label for="campDescripcion">Descripción *</label>
+                        <textarea id="campDescripcion" class="portal-textarea" rows="3" required></textarea>
+                    </div>
+                    <div class="portal-grid-2">
+                        <div class="portal-form-group">
+                            <label for="campFechaInicio">Fecha Inicio</label>
+                            <input type="date" id="campFechaInicio" class="portal-input" required>
+                        </div>
+                        <div class="portal-form-group">
+                            <label for="campFechaFin">Fecha Fin</label>
+                            <input type="date" id="campFechaFin" class="portal-input" required>
+                        </div>
+                    </div>
+                    <div class="portal-grid-2">
+                        <div class="portal-form-group">
+                            <label for="campCupo">Cupos Totales *</label>
+                            <input type="number" id="campCupo" class="portal-input" value="150" min="1" required>
+                        </div>
+                        <div class="portal-form-group">
+                            <label for="campEstado">Estado</label>
+                            <select id="campEstado" class="portal-select">
+                                <option value="activa">Activa</option>
+                                <option value="pronto">Próximamente</option>
+                                <option value="finalizada">Finalizada</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="portal-form-group">
+                        <label for="campRangoTexto">Etiqueta de Fechas (ej. Del 20 al 28 Noviembre)</label>
+                        <input type="text" id="campRangoTexto" class="portal-input" placeholder="Opcional: se genera automáticamente si queda vacío">
+                    </div>
+                </div>
+                <div class="portal-modal-footer">
+                    <button type="button" class="btn-portal btn-portal-outline" data-close="modalCampana">Cancelar</button>
+                    <button type="submit" class="btn-portal btn-portal-primary">Guardar Campaña</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL: NUEVO PRODUCTO FARMACIA -->
+    <div id="modalNuevoProducto" class="portal-modal" style="display:none;">
+        <div class="portal-modal-content">
+            <div class="portal-modal-header">
+                <h3><i class="fa-solid fa-pills"></i> Nuevo Producto de Farmacia</h3>
+                <button type="button" class="portal-modal-close" data-close="modalNuevoProducto">&times;</button>
+            </div>
+            <form id="formNuevoProducto">
+                <div class="portal-modal-body">
+                    <div class="portal-form-group">
+                        <label for="prodNombre">Nombre del Medicamento *</label>
+                        <input type="text" id="prodNombre" class="portal-input" required>
+                    </div>
+                    <div class="portal-grid-2">
+                        <div class="portal-form-group">
+                            <label for="prodCategoria">Categoría *</label>
+                            <select id="prodCategoria" class="portal-select" required>
+                                <option value="Analgésicos">Analgésicos</option>
+                                <option value="Antibióticos">Antibióticos</option>
+                                <option value="Antiinflamatorios">Antiinflamatorios</option>
+                                <option value="Vitaminas">Vitaminas y Suplementos</option>
+                                <option value="Cardiología">Cardiología</option>
+                                <option value="Insumos">Insumos Médicos</option>
+                            </select>
+                        </div>
+                        <div class="portal-form-group">
+                            <label for="prodImagen">Imagen</label>
+                            <input type="text" id="prodImagen" class="portal-input" value="img/farmacia.png">
+                        </div>
+                    </div>
+                    <div class="portal-grid-2">
+                        <div class="portal-form-group">
+                            <label for="prodPrecio">Precio Unitario (S/) *</label>
+                            <input type="number" step="0.01" min="0.50" id="prodPrecio" class="portal-input" required>
+                        </div>
+                        <div class="portal-form-group">
+                            <label for="prodStock">Stock Inicial *</label>
+                            <input type="number" min="0" id="prodStock" class="portal-input" value="50" required>
+                        </div>
+                    </div>
+                    <div class="portal-form-group">
+                        <label style="display:flex; align-items:center; gap:8px; cursor:pointer; font-size:0.86rem;">
+                            <input type="checkbox" id="prodReceta"> Requiere Receta Médica Obligatoria
+                        </label>
+                    </div>
+                </div>
+                <div class="portal-modal-footer">
+                    <button type="button" class="btn-portal btn-portal-outline" data-close="modalNuevoProducto">Cancelar</button>
+                    <button type="submit" class="btn-portal btn-portal-primary">Registrar Producto</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL: PUBLICAR RESULTADO LABORATORIO -->
+    <div id="modalPublicarLab" class="portal-modal" style="display:none;">
+        <div class="portal-modal-content">
+            <div class="portal-modal-header">
+                <h3><i class="fa-solid fa-flask"></i> Emitir Resultado de Laboratorio</h3>
+                <button type="button" class="portal-modal-close" data-close="modalPublicarLab">&times;</button>
+            </div>
+            <form id="formPublicarLab">
+                <input type="hidden" id="labOrdenId">
+                <div class="portal-modal-body">
+                    <p style="font-size:0.86rem; color:#57606a; margin-bottom:12px;">
+                        Orden: <strong id="labCodigoTxt">-</strong>
+                    </p>
+                    <div class="portal-form-group">
+                        <label for="labEstado">Estado de la Orden *</label>
+                        <select id="labEstado" class="portal-select" required>
+                            <option value="publicado">Publicado (Visible al Paciente y Médico)</option>
+                            <option value="en_proceso">En Proceso</option>
+                            <option value="pendiente_muestra">Pendiente de Muestra</option>
+                        </select>
+                    </div>
+                    <div class="portal-form-group">
+                        <label for="labResultadoResumen">Resumen e Informe de Resultados *</label>
+                        <textarea id="labResultadoResumen" class="portal-textarea" rows="4" placeholder="Ej. Glucosa: 92 mg/dL (Normal). Hemograma completo dentro de rangos fisiológicos." required></textarea>
+                    </div>
+                    <div class="portal-form-group">
+                        <label for="labObservaciones">Observaciones del Tecnólogo / Laboratorio</label>
+                        <input type="text" id="labObservaciones" class="portal-input" value="Validado por Laboratorio Clínico Centenario del Norte.">
+                    </div>
+                </div>
+                <div class="portal-modal-footer">
+                    <button type="button" class="btn-portal btn-portal-outline" data-close="modalPublicarLab">Cancelar</button>
+                    <button type="submit" class="btn-portal btn-portal-primary">Guardar y Notificar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL: RESPONDER FAQ -->
+    <div id="modalResponderFaq" class="portal-modal" style="display:none;">
+        <div class="portal-modal-content">
+            <div class="portal-modal-header">
+                <h3><i class="fa-solid fa-reply"></i> Responder Pregunta FAQ</h3>
+                <button type="button" class="portal-modal-close" data-close="modalResponderFaq">&times;</button>
+            </div>
+            <form id="formResponderFaq">
+                <input type="hidden" id="faqId">
+                <div class="portal-modal-body">
+                    <div class="portal-form-group">
+                        <label>Pregunta recibida:</label>
+                        <div id="faqPreguntaTexto" style="padding:10px; background:#f6f8fa; border:1px solid #d0d7de; border-radius:6px; font-size:0.88rem;"></div>
+                    </div>
+                    <div class="portal-form-group">
+                        <label for="faqRespuesta">Respuesta Oficial *</label>
+                        <textarea id="faqRespuesta" class="portal-textarea" rows="4" required></textarea>
+                    </div>
+                </div>
+                <div class="portal-modal-footer">
+                    <button type="button" class="btn-portal btn-portal-outline" data-close="modalResponderFaq">Cancelar</button>
+                    <button type="submit" class="btn-portal btn-portal-primary">Publicar Respuesta</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL: GESTIONAR CONTACTO / AFILIACIÓN -->
+    <div id="modalGestionContacto" class="portal-modal" style="display:none;">
+        <div class="portal-modal-content">
+            <div class="portal-modal-header">
+                <h3><i class="fa-solid fa-address-card"></i> Gestionar Solicitud de Afiliación</h3>
+                <button type="button" class="portal-modal-close" data-close="modalGestionContacto">&times;</button>
+            </div>
+            <form id="formGestionContacto">
+                <input type="hidden" id="contactoId">
+                <div class="portal-modal-body">
+                    <p id="contactoInfoTxt" style="font-size:0.86rem; color:#57606a; margin-bottom:12px;"></p>
+                    <div class="portal-form-group">
+                        <label for="contactoEstado">Estado *</label>
+                        <select id="contactoEstado" class="portal-select" required>
+                            <option value="ENVIADO">Enviado</option>
+                            <option value="EN_SEGUIMIENTO">En Seguimiento</option>
+                            <option value="AFILIADO">Afiliado</option>
+                            <option value="DESCARTADO">Descartado</option>
+                        </select>
+                    </div>
+                    <div class="portal-form-group">
+                        <label for="contactoNotas">Notas Administrativas</label>
+                        <textarea id="contactoNotas" class="portal-textarea" rows="3" placeholder="Ej. Se contactó vía telefónica y se validó documentación EPS."></textarea>
+                    </div>
+                </div>
+                <div class="portal-modal-footer">
+                    <button type="button" class="btn-portal btn-portal-outline" data-close="modalGestionContacto">Cancelar</button>
+                    <button type="submit" class="btn-portal btn-portal-primary">Actualizar Solicitud</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="js/layout.js"></script>
+    <script src="js/admin.js"></script>
+</body>
+</html>

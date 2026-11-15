@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portal Médico — Clínica Centenario del Norte</title>
+    <link rel="icon" href="img/logo.png">
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/portales.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+    <button id="darkModeToggle" class="dark-mode-toggle" aria-label="Cambiar modo oscuro/claro">
+        <i class="fas fa-moon"></i>
+    </button>
+
+    <header class="portal-shell-header">
+        <div class="portal-shell-brand">
+            <a href="medico.html" class="logo-link">
+                <div class="logo">CLINICA <span class="color-sec">CENTENARIO DEL NORTE</span></div>
+            </a>
+            <span class="portal-role-pill"><i class="fa-solid fa-user-doctor"></i> Portal Médico</span>
+        </div>
+        <div class="portal-shell-actions">
+            <div class="portal-user-chip" id="medicoHeaderChip" style="display:none;">
+                <i class="fa-solid fa-stethoscope" style="color:#0077b6;"></i>
+                <span id="medicoHeaderUser">Médico Tratante</span>
+            </div>
+            <button type="button" id="btnRefreshMedico" class="btn-portal btn-portal-outline" style="display:none; font-size:0.82rem;">
+                <i class="fa-solid fa-rotate"></i> Actualizar
+            </button>
+            <a href="index.html" class="btn-portal btn-portal-outline" style="font-size:0.82rem; text-decoration:none;">
+                <i class="fa-solid fa-house"></i> Landing Pública
+            </a>
+            <button type="button" id="btnLogoutMedico" class="btn-portal btn-portal-danger" style="display:none; font-size:0.82rem;">
+                <i class="fa-solid fa-right-from-bracket"></i> Salir
+            </button>
+        </div>
+    </header>
+
+    <main>
+        <!-- Login Médico (Credenciales + Google OAuth) -->
+        <div id="medicoAuthGate" class="portal-auth-gate" style="display:none;">
+            <h2><i class="fa-solid fa-user-doctor"></i> Acceso al Portal Médico (RF-M01)</h2>
+            <p class="sub">Exclusivo para profesionales médicos acreditados del staff. Inicie sesión con sus credenciales institucionales o mediante Google.</p>
+            <div id="medicoForbiddenAlert" style="display:none; padding:10px; background:#fce8e6; color:#d93025; border:1px solid #f5c2c7; border-radius:6px; margin-bottom:12px; font-size:0.84rem; font-weight:600;"></div>
+            <form id="medicoLoginForm">
+                <div class="portal-form-group">
+                    <label for="medEmail">Correo Institucional Médico</label>
+                    <input type="email" id="medEmail" class="portal-input" placeholder="juan.perez@centenario.pe" required>
+                </div>
+                <div class="portal-form-group">
+                    <label for="medPass">Contraseña</label>
+                    <input type="password" id="medPass" class="portal-input" placeholder="••••••••" required>
+                </div>
+                <button type="submit" class="btn-portal btn-portal-primary" style="width:100%; padding:10px;">Ingresar al Portal Médico</button>
+            </form>
+            <button type="button" id="btnGoogleMedico" class="btn-google-oauth">
+                <i class="fab fa-google" style="color:#0077b6;"></i> Iniciar Sesión con Google (Staff Médico)
+            </button>
+        </div>
+
+        <!-- Dashboard Médico (Shell con menú lateral por rol) -->
+        <div id="medicoWorkspace" class="portal-shell" style="display:none;">
+            <aside class="portal-sidebar" aria-label="Menú del médico">
+                <div class="portal-sidebar-title">Espacio Clínico</div>
+                <nav class="portal-sidebar-nav">
+                    <button type="button" class="portal-sidebar-btn portal-tab-btn active" data-tab="panelAgenda">
+                        <i class="fa-regular fa-calendar-check"></i> Agenda y Atención
+                    </button>
+                    <button type="button" class="portal-sidebar-btn portal-tab-btn" data-tab="panelHistoria">
+                        <i class="fa-solid fa-notes-medical"></i> Historia Clínica
+                    </button>
+                    <button type="button" class="portal-sidebar-btn portal-tab-btn" data-tab="panelRecetasLab">
+                        <i class="fa-solid fa-prescription"></i> Recetas y Órdenes Lab
+                    </button>
+                    <button type="button" class="portal-sidebar-btn portal-tab-btn" data-tab="panelResultadosLab">
+                        <i class="fa-solid fa-vials"></i> Resultados Lab
+                    </button>
+                    <button type="button" class="portal-sidebar-btn portal-tab-btn" data-tab="panelDisponibilidad">
+                        <i class="fa-regular fa-clock"></i> Mi Disponibilidad
+                    </button>
+                </nav>
+                <div class="portal-sidebar-footer">
+                    <a href="index.html" class="portal-sidebar-link"><i class="fa-solid fa-globe"></i> Ver Sitio Público</a>
+                </div>
+            </aside>
+
+            <section class="portal-main">
+                <div class="portal-topbar">
+                    <div class="portal-title-group">
+                        <h1 id="medicoHeaderName">Portal Médico — Agenda y Gestión Clínica</h1>
+                        <p id="medicoHeaderSub">Especialidad · CMP · Turnos de atención</p>
+                    </div>
+                </div>
+
+                <!-- Estadísticas RF-M08 -->
+                <div class="kpi-grid">
+                    <div class="kpi-card">
+                        <div class="kpi-label">Citas del Día (Hoy)</div>
+                        <div class="kpi-value" id="kpiHoy">0</div>
+                        <div class="kpi-sub">Agenda activa</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-label">Pendientes / En Atención</div>
+                        <div class="kpi-value" id="kpiPendientes">0</div>
+                        <div class="kpi-sub">Por finalizar historia</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-label">Consultas Realizadas</div>
+                        <div class="kpi-value" id="kpiConsultas">0</div>
+                        <div class="kpi-sub">Acumulado histórico</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-label">Horas Clínicas</div>
+                        <div class="kpi-value" id="kpiHoras">0h</div>
+                        <div class="kpi-sub">Tiempo efectivo</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-label">Inasistencias (No-Show)</div>
+                        <div class="kpi-value" id="kpiNoShow" style="color:#d93025;">0</div>
+                        <div class="kpi-sub">Regla 15 min tolerancia</div>
+                    </div>
+                </div>
+
+            <!-- PANEL 1: AGENDA DEL DÍA, ATENCIÓN Y DERIVACIONES -->
+            <div id="panelAgenda" class="portal-panel active">
+                <div class="portal-card">
+                    <div class="portal-card-header">
+                        <h3><i class="fa-solid fa-calendar-day"></i> Mis Citas del Día de Hoy</h3>
+                        <span style="font-size:0.8rem; color:#57606a;">Transiciones: Iniciar Atención → Finalizar (con Historia/Observación) o No-Show (Tolerancia 15 min)</span>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="portal-table">
+                            <thead>
+                                <tr>
+                                    <th>Código</th>
+                                    <th>Hora / Turno</th>
+                                    <th>Paciente / DNI</th>
+                                    <th>Seguro / Sangre / Alergias</th>
+                                    <th>Motivo de Consulta</th>
+                                    <th>Estado</th>
+                                    <th>Acciones Clínicas (RF-M03 / RF-M07)</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tablaCitasHoy"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="portal-card">
+                    <div class="portal-card-header">
+                        <h3><i class="fa-solid fa-calendar-week"></i> Próximas Citas e Historial de Agenda</h3>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="portal-table">
+                            <thead>
+                                <tr>
+                                    <th>Código</th>
+                                    <th>Fecha y Hora</th>
+                                    <th>Paciente (DNI)</th>
+                                    <th>Motivo</th>
+                                    <th>Estado</th>
+                                    <th>Acciones Clínicas / Observaciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tablaCitasTodas"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PANEL 2: HISTORIA CLÍNICA POR PACIENTE (RF-M04) -->
+            <div id="panelHistoria" class="portal-panel">
+                <div class="portal-card">
+                    <div class="portal-card-header">
+                        <h3><i class="fa-solid fa-folder-open"></i> Consulta y Registro de Historia Clínica (RF-M04 — Ley N° 29733)</h3>
+                        <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+                            <select id="selectPacienteAsignado" class="portal-select" style="width:auto; min-width:240px;">
+                                <option value="">Seleccione un paciente asignado...</option>
+                            </select>
+                            <input type="text" id="inputBuscarDniHc" class="portal-input" placeholder="O ingrese DNI (8 dígitos)" maxlength="8" style="width:180px;">
+                            <button type="button" id="btnCargarHistoria" class="btn-portal btn-portal-primary">Abrir Historia</button>
+                        </div>
+                    </div>
+
+                    <div id="fichaPacienteResumen" style="display:none; background:#f8f9fa; border:1px solid #d0d7de; border-radius:6px; padding:14px; margin-bottom:16px;"></div>
+
+                    <div class="grid-2col">
+                        <div>
+                            <h4 style="color:#033076; margin-bottom:10px;">Registrar Nueva Evolución / Atención Médica</h4>
+                            <form id="formNuevaHistoria">
+                                <div class="grid-2col">
+                                    <div class="portal-form-group">
+                                        <label>DNI del Paciente*</label>
+                                        <input type="text" id="hcDni" class="portal-input" maxlength="8" required placeholder="71234561">
+                                    </div>
+                                    <div class="portal-form-group">
+                                        <label>Código CIE-10*</label>
+                                        <input type="text" id="hcCie10" class="portal-input" value="I10" required placeholder="Ej. I10, E11.9, J45.0">
+                                    </div>
+                                </div>
+                                <div class="portal-form-group">
+                                    <label>Signos Vitales (PA, FC, Temp, Peso, Talla)*</label>
+                                    <input type="text" id="hcSignos" class="portal-input" placeholder="PA: 120/80 mmHg | FC: 74 lpm | Temp: 36.5 °C | Peso: 70 kg" required>
+                                </div>
+                                <div class="portal-form-group">
+                                    <label>Motivo de Consulta*</label>
+                                    <input type="text" id="hcMotivo" class="portal-input" placeholder="Motivo principal de la atención" required>
+                                </div>
+                                <div class="portal-form-group">
+                                    <label>Anamnesis y Examen Físico*</label>
+                                    <textarea id="hcAnamnesis" class="portal-textarea" rows="3" placeholder="Relato cronológico y hallazgos clínicos..." required></textarea>
+                                </div>
+                                <div class="portal-form-group">
+                                    <label>Diagnóstico Definitivo / Presuntivo*</label>
+                                    <input type="text" id="hcDiagnostico" class="portal-input" placeholder="Descripción del diagnóstico" required>
+                                </div>
+                                <div class="portal-form-group">
+                                    <label>Plan Terapéutico y Tratamiento*</label>
+                                    <textarea id="hcTratamiento" class="portal-textarea" rows="2" placeholder="Indicaciones farmacológicas y no farmacológicas..." required></textarea>
+                                </div>
+                                <input type="hidden" id="hcCitaId" value="">
+                                <button type="submit" class="btn-portal btn-portal-success" style="width:100%; padding:10px;"><i class="fa-solid fa-floppy-disk"></i> Guardar en Historia Clínica (Auditable)</button>
+                            </form>
+                        </div>
+
+                        <div>
+                            <h4 style="color:#033076; margin-bottom:10px;">Evoluciones Previas del Paciente</h4>
+                            <div id="listaEvolucionesHc" style="display:flex; flex-direction:column; gap:10px; max-height:460px; overflow-y:auto;">
+                                <p style="color:#57606a; font-size:0.86rem;">Seleccione un paciente para visualizar sus antecedentes y evoluciones clínicas.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PANEL 3: EMITIR RECETA DIGITAL Y ORDEN DE LABORATORIO (RF-M05) -->
+            <div id="panelRecetasLab" class="portal-panel">
+                <div class="grid-2col">
+                    <div class="portal-card">
+                        <div class="portal-card-header">
+                            <h3><i class="fa-solid fa-file-prescription"></i> Emitir Receta Digital (RF-M05)</h3>
+                        </div>
+                        <form id="formEmitirReceta">
+                            <div class="portal-form-group">
+                                <label>DNI del Paciente (8 dígitos)*</label>
+                                <input type="text" id="recDni" class="portal-input" maxlength="8" placeholder="71234561" required>
+                            </div>
+                            <div class="portal-form-group">
+                                <label>Diagnóstico Asociado*</label>
+                                <input type="text" id="recDiag" class="portal-input" placeholder="Ej. Infección respiratoria aguda / HTA" required>
+                            </div>
+                            <div class="portal-form-group">
+                                <label>Medicamento Prescrito (Catálogo Farmacia)*</label>
+                                <select id="recMedNombre" class="portal-select" required>
+                                    <option value="Amoxicilina 500mg">Amoxicilina 500mg (Antibiótico - Sujeto a receta)</option>
+                                    <option value="Paracetamol 500mg">Paracetamol 500mg (Analgésico)</option>
+                                    <option value="Ibuprofeno 400mg">Ibuprofeno 400mg (Antiinflamatorio)</option>
+                                    <option value="Jarabe para la Tos">Jarabe para la Tos (Respiratorio)</option>
+                                    <option value="Vitamina C 1000mg">Vitamina C 1000mg (Suplemento)</option>
+                                </select>
+                            </div>
+                            <div class="grid-2col">
+                                <div class="portal-form-group">
+                                    <label>Dosis y Frecuencia*</label>
+                                    <input type="text" id="recDosis" class="portal-input" value="1 cápsula cada 8 horas" required>
+                                </div>
+                                <div class="portal-form-group">
+                                    <label>Duración / Cantidad*</label>
+                                    <input type="text" id="recDuracion" class="portal-input" value="7 días (21 und)" required>
+                                </div>
+                            </div>
+                            <div class="portal-form-group">
+                                <label>Indicaciones Generales al Paciente*</label>
+                                <textarea id="recIndicaciones" class="portal-textarea" rows="2" required>Tomar después de los alimentos con abundante agua.</textarea>
+                            </div>
+                            <button type="submit" class="btn-portal btn-portal-primary" style="width:100%; padding:10px;">Generar Receta Digital</button>
+                        </form>
+                    </div>
+
+                    <div class="portal-card">
+                        <div class="portal-card-header">
+                            <h3><i class="fa-solid fa-microscope"></i> Emitir Orden de Laboratorio (RF-M05)</h3>
+                        </div>
+                        <form id="formEmitirOrdenLab">
+                            <div class="portal-form-group">
+                                <label>DNI del Paciente (8 dígitos)*</label>
+                                <input type="text" id="ordLabDni" class="portal-input" maxlength="8" placeholder="71234561" required>
+                            </div>
+                            <div class="portal-form-group">
+                                <label>Análisis Clínico Solicitado*</label>
+                                <select id="ordLabAnalisis" class="portal-select" required>
+                                    <option value="Análisis de Sangre">Análisis de Sangre (S/ 40.00)</option>
+                                    <option value="Perfil Lipídico">Perfil Lipídico (S/ 50.00)</option>
+                                    <option value="Glucosa">Glucosa en Ayunas (S/ 30.00)</option>
+                                    <option value="Orina Completa">Orina Completa (S/ 25.00)</option>
+                                    <option value="Hematología">Hematología Completa (S/ 50.00)</option>
+                                    <option value="Tomografía">Tomografía (S/ 350.00)</option>
+                                    <option value="Biopsia">Biopsia (S/ 300.00)</option>
+                                </select>
+                            </div>
+                            <button type="submit" class="btn-portal btn-portal-success" style="width:100%; padding:10px;">Emitir Orden de Laboratorio</button>
+                        </form>
+
+                        <h4 style="color:#033076; margin:18px 0 8px;">Recetas Emitidas Recientemente</h4>
+                        <div class="table-responsive">
+                            <table class="portal-table">
+                                <thead>
+                                    <tr>
+                                        <th>Código</th>
+                                        <th>DNI Paciente</th>
+                                        <th>Diagnóstico</th>
+                                        <th>Estado</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tablaRecetasMedico"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PANEL 4: RESULTADOS DE LABORATORIO DE SUS PACIENTES (RF-M06) -->
+            <div id="panelResultadosLab" class="portal-panel">
+                <div class="portal-card">
+                    <div class="portal-card-header">
+                        <h3><i class="fa-solid fa-vial-circle-check"></i> Resultados de Laboratorio de Mis Pacientes (RF-M06)</h3>
+                        <span style="font-size:0.8rem; color:#57606a;">Cada acceso queda registrado en el log de auditoría de datos sensibles</span>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="portal-table">
+                            <thead>
+                                <tr>
+                                    <th>Código Orden</th>
+                                    <th>Paciente / DNI</th>
+                                    <th>Exámenes</th>
+                                    <th>Estado</th>
+                                    <th>Resultado Bioquímico</th>
+                                    <th>Acción</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tablaLabMedico"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PANEL 5: DISPONIBILIDAD Y BLOQUES DE AGENDA (RF-M02) -->
+            <div id="panelDisponibilidad" class="portal-panel">
+                <div class="grid-2col">
+                    <div class="portal-card">
+                        <div class="portal-card-header">
+                            <h3><i class="fa-solid fa-calendar-check"></i> Configurar Turnos y Bloquear Horarios (RF-M02)</h3>
+                        </div>
+                        <form id="formDisponibilidad">
+                            <div class="portal-form-group">
+                                <label>Turnos Habilitados de Consulta</label>
+                                <div style="display:flex; gap:18px; margin-top:6px;">
+                                    <label style="display:flex; align-items:center; gap:6px;"><input type="checkbox" id="dispManana" checked> Turno Mañana (08:00 - 13:00)</label>
+                                    <label style="display:flex; align-items:center; gap:6px;"><input type="checkbox" id="dispTarde" checked> Turno Tarde (14:00 - 19:00)</label>
+                                </div>
+                            </div>
+                            <div class="portal-form-group">
+                                <label>Días de Atención Semanal</label>
+                                <input type="text" id="dispDias" class="portal-input" value="Lunes,Martes,Miércoles,Jueves,Viernes,Sábado">
+                            </div>
+                            <hr style="margin:14px 0; border:none; border-top:1px solid #e5e7eb;">
+                            <h4 style="color:#033076; margin-bottom:8px;">Registrar Bloqueo de Horario o Ausencia</h4>
+                            <div class="grid-2col">
+                                <div class="portal-form-group">
+                                    <label>Fecha</label>
+                                    <input type="date" id="dispFecha" class="portal-input">
+                                </div>
+                                <div class="portal-form-group">
+                                    <label>Tipo de Bloque</label>
+                                    <select id="dispEstado" class="portal-select">
+                                        <option value="bloqueado">Horario Bloqueado (No ofertar a pacientes)</option>
+                                        <option value="ausencia">Ausencia / Permiso Médico</option>
+                                        <option value="disponible">Turno Disponible</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="grid-3col">
+                                <div class="portal-form-group">
+                                    <label>Turno</label>
+                                    <select id="dispTurno" class="portal-select">
+                                        <option value="manana">Mañana</option>
+                                        <option value="tarde">Tarde</option>
+                                        <option value="completo">Día Completo</option>
+                                    </select>
+                                </div>
+                                <div class="portal-form-group">
+                                    <label>Hora Inicio</label>
+                                    <input type="time" id="dispHoraIni" class="portal-input" value="14:00">
+                                </div>
+                                <div class="portal-form-group">
+                                    <label>Hora Fin</label>
+                                    <input type="time" id="dispHoraFin" class="portal-input" value="17:00">
+                                </div>
+                            </div>
+                            <div class="portal-form-group">
+                                <label>Motivo / Consultorio</label>
+                                <input type="text" id="dispMotivo" class="portal-input" placeholder="Ej. Junta médica / Procedimiento quirúrgico">
+                            </div>
+                            <button type="submit" class="btn-portal btn-portal-primary" style="width:100%; padding:10px;">Guardar Configuración de Agenda</button>
+                        </form>
+                    </div>
+
+                    <div class="portal-card">
+                        <div class="portal-card-header">
+                            <h3>Bloques y Ausencias Registradas</h3>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="portal-table">
+                                <thead>
+                                    <tr>
+                                        <th>Fecha</th>
+                                        <th>Turno / Horas</th>
+                                        <th>Estado</th>
+                                        <th>Motivo</th>
+                                        <th>Acción</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tablaDisponibilidadMedico"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            </section>
+        </div>
+    </main>
+
+    <script src="js/layout.js"></script>
+    <script src="js/medico.js"></script>
+</body>
+</html>
