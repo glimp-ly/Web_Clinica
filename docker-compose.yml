@@ -1,0 +1,20 @@
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: clinica_centenario_web
+    ports:
+      - "8989:8989"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    volumes:
+      - ./frontend_clinica:/var/www/html
+      - /run/mysqld/mysqld.sock:/run/mysqld/mysqld.sock:ro
+    environment:
+      - DB_HOST=172.17.0.1
+      - DB_PORT=3307
+      - DB_NAME=test_clinica
+      - DB_USER=root
+      - DB_PASS=secret
+    restart: unless-stopped

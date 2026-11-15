@@ -4,7 +4,7 @@
 # === Build / Producción ===
 /build
 /dist
-/js/temp
+/frontend_clinica/js/temp
 /.vscode
 
 # Si se usa Next.js
@@ -18,10 +18,12 @@
 .env.*.local
 
 # === Cache y Logs ===
-# Archivos de cache de herramientas comunes en React
+# Archivos de cache de herramientas 
 .eslintcache
 .stylelintcache
 .npm
 /coverage
 npm-debug.log*
 yarn-debug.log*
+REQUERIMIENTOS*
+DESCRIPCION_PROYECT*
