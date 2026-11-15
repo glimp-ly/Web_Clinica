@@ -7,8 +7,8 @@
 
 body{
     min-height: 100vh;
-    background: linear-gradient(135deg, #a7d9f2, #0077b6);
-    padding: 30px 0;
+    background: linear-gradient(135deg, #f0f4f8, #0077b6);
+    padding: 0;
     color: #343a40;
 }
 
@@ -16,6 +16,7 @@ body{
     display: flex;
     align-items: center;
     justify-content: center;
+    padding: 30px 20px;
 }
 
 .form-container{
@@ -77,7 +78,7 @@ input[type="text"],input[type="number"], input[type="date"],select,textarea{
     width: 100%;
     padding: 10px 15px;
     margin-top: 5px;
-    border: 1px solid #ced4da;
+    border: 1px solid #cccccc;
     border-radius: 8px;
     box-shadow: none;
     transition: all 0.3s ease;
@@ -172,7 +173,7 @@ input[type="date"]{
 .btnEliminar{
     margin-left: 15px ;
     padding: 10px 15px;
-    background-color: #dc3545;
+    background-color: #d93025;
     border: none;
     color: white;
     border-radius: 6px;
@@ -204,14 +205,14 @@ input[type="date"]{
 }
 
 .botones input[type="submit"]:hover{
-    background-color: #218838;
+    background-color: #176428;
     box-shadow: 0 6px 10px rgba(0, 0, 0, 0.3);
 }
 
 .botones input[type="reset"]{
     background: none;
-    color: #6c757d;
-    border: 1px solid #6c757d;
+    color: #666666;
+    border: 1px solid #666666;
     padding: 12px 30px;
     font-size: 1.1em;
     font-weight: 600;
@@ -222,7 +223,35 @@ input[type="date"]{
 }
 
 .botones input[type="reset"]:hover{
-    background-color: #e9ecef;
-    color: #495057;
+    background-color: #eeeeee;
+    color: #343a40;
 
+}
+
+/* Modo oscuro formulario (paleta base) */
+body.dark-mode{
+    background: linear-gradient(135deg, #121212, #033076);
+}
+body.dark-mode .form-container{
+    background: #1e1e1e;
+}
+body.dark-mode h2,
+body.dark-mode h2.titulo,
+body.dark-mode label{
+    color: #e0e0e0;
+}
+body.dark-mode h2.subtitulo{
+    color: #4da3ff;
+}
+body.dark-mode input[type="text"],
+body.dark-mode input[type="number"],
+body.dark-mode input[type="date"],
+body.dark-mode select,
+body.dark-mode textarea{
+    background: #2a2a2a;
+    color: #ffffff;
+    border-color: #333333;
+}
+body.dark-mode input[type="date"]{
+    background-color: #033076;
 }

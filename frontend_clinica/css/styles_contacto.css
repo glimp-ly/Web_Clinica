@@ -7,7 +7,7 @@
 }
 
 body {
-    background-color: #f8f9fa;
+    background-color: #f9f9f9;
     color: #333;
 }
 
@@ -81,8 +81,8 @@ body {
 
 .boton-volver-header {
     background: white;
-    color: #00ca63;
-    border: 2px solid #00ca63;
+    color: #28a745;
+    border: 2px solid #28a745;
     padding: 8px 20px;
     border-radius: 25px;
     text-decoration: none;
@@ -92,14 +92,14 @@ body {
 }
 
 .boton-volver-header:hover {
-    background: #00ca63;
+    background: #28a745;
     color: white;
 }
 
 /* --- 3. SECCIÓN HERO --- */
 .seccion-hero {
     position: relative;
-    background: linear-gradient(135deg, #025910 0%, #0645aa 100%);
+    background: linear-gradient(135deg, #176428 0%, #033076 100%);
     min-height: 100vh;
     padding-top: 120px;
     padding-bottom: 80px;
@@ -108,15 +108,8 @@ body {
     overflow: hidden;
 }
 
-#canvas-red {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    opacity: 0.3;
-    pointer-events: none;
-}
+/* Fondo canvas-red eliminado: ya no se usa. */
+#canvas-red { display: none !important; }
 
 .hero-grid {
     position: relative;
@@ -139,7 +132,7 @@ body {
 
 .etiqueta-destacada {
     background: rgba(0, 202, 99, 0.2);
-    color: #00ca63;
+    color: #28a745;
     padding: 5px 12px;
     border-radius: 4px;
     font-size: 12px;
@@ -208,7 +201,7 @@ body {
 }
 
 .encabezado-form span {
-    color: #010408;
+    color: #343a40;
     font-size: 30px
 }
 
@@ -232,21 +225,21 @@ body {
     display: block;
     font-size: 12px;
     font-weight: 600;
-    color: #444;
+    color: #343a40;
     margin-bottom: 6px;
 }
 
 .input-grupo input {
     width: 100%;
     padding: 12px;
-    border: 1px solid #ddd;
+    border: 1px solid #e0e0e0;
     border-radius: 6px;
     font-size: 14px;
     transition: 0.3s;
 }
 
 .input-grupo input:focus {
-    border-color: #00ca63;
+    border-color: #28a745;
     outline: none;
     box-shadow: 0 0 0 3px rgba(0, 202, 99, 0.1);
 }
@@ -292,7 +285,7 @@ body {
 }
 
 .boton-enviar:hover {
-    background: #00b056;
+    background: #176428;
     transform: translateY(-2px);
     box-shadow: 0 5px 15px rgba(0, 202, 99, 0.3);
 }
@@ -327,7 +320,7 @@ body {
 .linea-decorativa {
     width: 50px;
     height: 3px;
-    background: #00ca63;
+    background: #28a745;
     margin: 0 auto 15px;
 }
 
@@ -353,13 +346,13 @@ body {
 
 .card-especialidad:hover {
     transform: translateY(-5px);
-    border-top-color: #00ca63;
+    border-top-color: #28a745;
     box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
 }
 
 .icono-esp {
     font-size: 30px;
-    color: #00ca63;
+    color: #28a745;
     margin-bottom: 15px;
 }
 
@@ -371,7 +364,7 @@ body {
 
 .card-especialidad p {
     font-size: 13px;
-    color: #777;
+    color: #666666;
     line-height: 1.5;
 }
 

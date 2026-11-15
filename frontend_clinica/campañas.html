@@ -3,17 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="img/logo.png">
     <title>Clínica Centenario - Campañas</title>
     
     <link rel="stylesheet" href="css/campañas.css">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
+    <button id="darkModeToggle" class="dark-mode-toggle" aria-label="Cambiar modo oscuro/claro">
+        <i class="fas fa-moon"></i>
+    </button>
 
     <header class="header">
-        <div id="particles-js"></div>
-
         <a href="index.html" class="logo-link">
             <div class="logo">CLINICA<br><span class="color-sec">CENTENARIO DEL NORTE</span></div>
         </a>
@@ -51,7 +54,7 @@
                 </li>
                 <li><a href="#">Nuestro Blog ▾</a>
                     <ul class="submenu">
-                        <li><a href="Blog.html">Página Blog</a></li>
+                        <li><a href="Blog.html">Pagina Blog</a></li>
                     </ul>
                 </li>
                 <li><a href="#">FAQ's ▾</a>
@@ -62,16 +65,12 @@
             </ul>
 
             <div class="nav-actions">
-                
-                <button class="theme-toggle" id="themeToggle" aria-label="Cambiar tema">
-                    <i class="fa-solid fa-moon"></i>
-                </button>
-
+                <a href="login.html" class="btn btn-primary"><i class="fa-regular fa-user"></i>&nbsp; Iniciar Sesión</a>
+                <a href="register.html" class="btn btn-secondary"><i class="fa-regular fa-user"></i>&nbsp; Registrarse</a>
                 <div class="user-profile-container">
                     <div class="user-icon" id="userIcon">
                         <i class="fa-solid fa-circle-user"></i>
                     </div>
-                    
                     <div class="user-popup" id="userPopup">
                         <div class="popup-header">
                             <div class="popup-user-info">
@@ -194,37 +193,47 @@
         </div>
     </div>
 
-    <footer class="site-footer">
-        <div class="footer-container">
-            <div class="footer-col">
-                <h4>Nosotros ▾</h4>
-                <ul>
-                    <li><a href="#">Quienes somos</a></li>
-                    <li><a href="#">Misión y Visión</a></li>
-                    <li><a href="#">Trabaja con nosotros</a></li>
-                </ul>
-            </div>
-            <div class="footer-col">
-                <h4>Nuestro Blog ▾</h4>
-                <ul>
-                    <li><a href="#">Noticias</a></li>
-                    <li><a href="#">Consejos</a></li>
-                    <li><a href="#">Autoexaminate</a></li>
-                </ul>
-            </div>
-            <div class="footer-col">
-                <h4>Información Legal ▾</h4>
-                <ul>
-                    <li><a href="#">Políticas de privacidad</a></li>
-                    <li><a href="#">Términos y condiciones</a></li>
-                </ul>
-            </div>
-            <div class="footer-col">
-                <h4>Síguenos ▾</h4>
-                <div class="social-icons">
-                    <a href="#"><i class="fab fa-facebook-f"></i></a>
-                    <a href="#"><i class="fab fa-instagram"></i></a>
-                    <a href="#"><i class="fab fa-tiktok"></i></a>
+    <footer class="footer"> <!--PIE DE PAGINA DE LA WEB-->
+        <div class="container">
+            <div class="footer-row">
+                <div class="footer-links" id="footer-nosotros">
+                    <h4>Nosotros ▾</h4>
+                    <div class="footer-content">
+                        <ul>
+                            <li><a href="Qsomos.html">Quienes somos</a></li>
+                            <li><a href="#">Misión y Visión</a></li>
+                            <li><a href="Contacto.html">Trabaja con nosotros</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="footer-links" id="footer-blog">
+                    <h4>Nuestro Blog ▾</h4>
+                    <div class="footer-content">
+                        <ul>
+                            <li><a href="Blog.html">Noticias</a></li>
+                            <li><a href="Blog.html">Consejos</a></li>
+                            <li><a href="Blog.html">Autoexaminate</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="footer-links" id="footer-legal">
+                    <h4>Información Legal ▾</h4>
+                    <div class="footer-content">
+                        <ul>
+                            <li><a href="privacidad.html">Politicas de privacidad</a></li>
+                            <li><a href="TerCondiciones.html">Terminos y condiciones</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="footer-links" id="footer-redes">
+                    <h4>Siguenos ▾</h4>
+                    <div class="footer-content">
+                        <div class="social-links">
+                            <a href="https://www.facebook.com/share/1Bo4gejadn/"><i class="fab fa-facebook-f"></i></a>
+                            <a href="https://www.instagram.com/clinicacentenariodelnorte?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw=="><i class="fab fa-instagram"></i></a>
+                            <a href="https://www.tiktok.com/@centenario_delnorte?_r=1&_t=ZS-91kjkdxP0vo"><i class="fab fa-tiktok"></i></a>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -246,8 +255,7 @@
 
     <div id="toast" class="toast hidden">Inscripción exitosa</div>
 
-    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
-    
+    <script src="js/layout.js"></script>
     <script src="js/campañas.js"></script>
     
     </body>

@@ -1,15 +1,93 @@
 <!doctype html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link rel="stylesheet" href="css/styles_login_register.css">
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <script src="js/layout.js"></script>
     <script src="js/script-lr.js"></script>
     <link rel="icon" href="img/logo.png">
     <title>Clinica_Centenario</title>
-</head>
+        </head>
 <body>
+    <button id="darkModeToggle" class="dark-mode-toggle" aria-label="Cambiar modo oscuro/claro">
+        <i class="fas fa-moon"></i>
+    </button>
+    <header class="header">
+        <a href="index.html" class="logo-link">
+            <div class="logo">CLINICA<br><span class="color-sec">CENTENARIO DEL NORTE</span></div>
+        </a>
+
+        <button class="menu-toggle" aria-label="Abrir menú">
+            <div class="bar"></div>
+            <div class="bar"></div>
+            <div class="bar"></div>
+        </button>
+
+        <nav class="main-nav">
+            <ul class="nav-links">
+                <li><a href="#">Campañas ▾</a>
+                    <ul class="submenu">
+                        <li><a href="campañas.html">Nuestras Campañas</a></li>
+                    </ul>
+                </li>
+                <li><a href="#">Servicios ▾</a>
+                    <ul class="submenu">
+                        <li><a href="Servicios.html">Nuestros Servicios</a></li>
+                        <li><a href="agendar_cita.html">Agenda tu Cita</a></li>
+                        <li><a href="farmacia.html">Farmacia</a></li>
+                        <li><a href="Laboratorio.html">Laboratorio</a></li>
+                    </ul>
+                </li>
+                <li><a href="#">Especialidades ▾</a>
+                    <ul class="submenu">
+                        <li><a href="especialidades.html">Nuestras Especialidades</a></li>
+                    </ul>
+                </li>
+                <li><a href="#">Staff Médico ▾</a>
+                    <ul class="submenu">
+                        <li><a href="staff_medico.html">Nuestros Médicos</a></li>
+                    </ul>
+                </li>
+                <li><a href="#">Nuestro Blog ▾</a>
+                    <ul class="submenu">
+                        <li><a href="Blog.html">Pagina Blog</a></li>
+                    </ul>
+                </li>
+                <li><a href="#">FAQ's ▾</a>
+                    <ul class="submenu">
+                        <li><a href="faq.html">Preguntas frecuentes</a></li>
+                    </ul>
+                </li>
+            </ul>
+
+            <div class="nav-actions">
+                <a href="login.html" class="btn btn-primary"><i class="fa-regular fa-user"></i>&nbsp; Iniciar Sesión</a>
+                <a href="register.html" class="btn btn-secondary"><i class="fa-regular fa-user"></i>&nbsp; Registrarse</a>
+                <div class="user-profile-container">
+                    <div class="user-icon" id="userIcon">
+                        <i class="fa-solid fa-circle-user"></i>
+                    </div>
+                    <div class="user-popup" id="userPopup">
+                        <div class="popup-header">
+                            <div class="popup-user-info">
+                                <p class="user-name">Juan Pérez</p>
+                                <p class="user-email">juan.perez@example.com</p>
+                            </div>
+                        </div>
+                        <ul class="popup-menu">
+                            <li><a href="#"><i class="fa-regular fa-calendar-check"></i> Mis Citas</a></li>
+                            <li><a href="#" class="logout"><i class="fa-solid fa-right-from-bracket"></i> Cerrar Sesión</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
+    <main class="auth-main">
     <div class="container">
         <div class="form_box login">
             <form action="formulario_datos.html" method="post" id="loginForm">
@@ -75,6 +153,52 @@
             </div>
         </div>
     </div>
+    </main>
+<footer class="footer"> <!--PIE DE PAGINA DE LA WEB-->
+        <div class="container">
+            <div class="footer-row">
+                <div class="footer-links" id="footer-nosotros">
+                    <h4>Nosotros ▾</h4>
+                    <div class="footer-content">
+                        <ul>
+                            <li><a href="Qsomos.html">Quienes somos</a></li>
+                            <li><a href="#">Misión y Visión</a></li>
+                            <li><a href="Contacto.html">Trabaja con nosotros</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="footer-links" id="footer-blog">
+                    <h4>Nuestro Blog ▾</h4>
+                    <div class="footer-content">
+                        <ul>
+                            <li><a href="Blog.html">Noticias</a></li>
+                            <li><a href="Blog.html">Consejos</a></li>
+                            <li><a href="Blog.html">Autoexaminate</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="footer-links" id="footer-legal">
+                    <h4>Información Legal ▾</h4>
+                    <div class="footer-content">
+                        <ul>
+                            <li><a href="privacidad.html">Politicas de privacidad</a></li>
+                            <li><a href="TerCondiciones.html">Terminos y condiciones</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="footer-links" id="footer-redes">
+                    <h4>Siguenos ▾</h4>
+                    <div class="footer-content">
+                        <div class="social-links">
+                            <a href="https://www.facebook.com/share/1Bo4gejadn/"><i class="fab fa-facebook-f"></i></a>
+                            <a href="https://www.instagram.com/clinicacentenariodelnorte?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw=="><i class="fab fa-instagram"></i></a>
+                            <a href="https://www.tiktok.com/@centenario_delnorte?_r=1&_t=ZS-91kjkdxP0vo"><i class="fab fa-tiktok"></i></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
 </body>
 
 </html>

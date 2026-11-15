@@ -1,22 +1,23 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Agendar Cita</title>
-    <link rel="icon" href="/img/logo.png">
+    <link rel="icon" href="img/logo.png">
     <link rel="stylesheet" href="css/styles.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link rel="stylesheet" href="css/styles_agendar_cita.css">
 </head>
 
 <body>
-    <button id="darkModeToggle" class="dark-mode-toggle" aria-label="Toggle Dark Mode">
+    <button id="darkModeToggle" class="dark-mode-toggle" aria-label="Cambiar modo oscuro/claro">
         <i class="fas fa-moon"></i>
     </button>
+    
     <header class="header">
-        <a href="index.html">
+        <a href="index.html" class="logo-link">
             <div class="logo">CLINICA<br><span class="color-sec">CENTENARIO DEL NORTE</span></div>
         </a>
 
@@ -36,6 +37,7 @@
                 <li><a href="#">Servicios ▾</a>
                     <ul class="submenu">
                         <li><a href="Servicios.html">Nuestros Servicios</a></li>
+                        <li><a href="agendar_cita.html">Agenda tu Cita</a></li>
                         <li><a href="farmacia.html">Farmacia</a></li>
                         <li><a href="Laboratorio.html">Laboratorio</a></li>
                     </ul>
@@ -63,6 +65,8 @@
             </ul>
 
             <div class="nav-actions">
+                <a href="login.html" class="btn btn-primary"><i class="fa-regular fa-user"></i>&nbsp; Iniciar Sesión</a>
+                <a href="register.html" class="btn btn-secondary"><i class="fa-regular fa-user"></i>&nbsp; Registrarse</a>
                 <div class="user-profile-container">
                     <div class="user-icon" id="userIcon">
                         <i class="fa-solid fa-circle-user"></i>
@@ -76,8 +80,7 @@
                         </div>
                         <ul class="popup-menu">
                             <li><a href="#"><i class="fa-regular fa-calendar-check"></i> Mis Citas</a></li>
-                            <li><a href="#" class="logout"><i class="fa-solid fa-right-from-bracket"></i> Cerrar
-                                    Sesión</a></li>
+                            <li><a href="#" class="logout"><i class="fa-solid fa-right-from-bracket"></i> Cerrar Sesión</a></li>
                         </ul>
                     </div>
                 </div>
@@ -122,30 +125,43 @@
                         </div>
 
                         <div class="son-form-input-container">
-                            <label for="especialidad">Especialidad (u otro): </label>
+                            <label for="especialidad">Especialidad Médica: </label>
                             <select id="especialidad" name="especialidad" required>
-                                <option value="">Selecciona la especialidad</option>
-                                <option value="cardio">Cardiologia</option>
-                                <option value="obstre">Obstetricia</option>
-                                <option value="general">Medicina General</option>
-                                <option value="pedia">Pediatria</option>
-                                <option value="gineco">Ginecología</option>
-                                <option value="labo">Laboratorio</option>
-                                <option value="analisis">Análisis</option>
+                                <option value="">Cargando especialidades...</option>
                             </select><br>
                         </div>
                     </div>
 
-                    <label>Elegir rango de fechas: </label>
-                    <div class="date-range-container">
-                        <input type="date" id="fecha-inicio" name="fecha" required>
-                        <input type="date" id="fecha-fin" name="fecha" required>
+                    <div class="form-input-container">
+                        <div class="son-form-input-container">
+                            <label for="fecha-inicio">Fecha de Atención:</label>
+                            <input type="date" id="fecha-inicio" name="fecha_inicio" required>
+                            <input type="hidden" id="fecha-fin" name="fecha_fin">
+                        </div>
+                        <div class="son-form-input-container">
+                            <label for="motivo_consulta">Motivo de Consulta (opcional):</label>
+                            <input type="text" id="motivo_consulta" name="motivo_consulta" placeholder="Ej. Dolor articular, control general...">
+                        </div>
                     </div><br>
+
+                    <div class="form-input-container">
+                        <div class="son-form-input-container">
+                            <label for="medico_id">Médico Especialista: </label>
+                            <select id="medico_id" name="medico_id">
+                                <option value="">Asignación automática por especialidad</option>
+                            </select>
+                        </div>
+                        <div class="son-form-input-container">
+                            <label for="hora_cita">Hora de Cita: </label>
+                            <input type="time" id="hora_cita" name="hora_cita" value="09:00" required>
+                        </div>
+                    </div>
+                    <div id="availabilityHint" style="font-size:0.84rem; margin:6px 0 14px; color:#033076;"></div>
 
                     <label>Turno: </label>
                     <div class="radio-group">
                         <div>
-                            <input type="radio" id="manana" name="turno" value="manana">
+                            <input type="radio" id="manana" name="turno" value="manana" checked>
                             <label for="manana">Mañana</label>
                         </div>
                         <div>
@@ -161,13 +177,13 @@
                     <div class="checkbox-group">
                         <input type="checkbox" id="terminos-condiciones" name="terminos-condiciones"
                             value="Terminos y Condiciones">
-                        <label for="terminos-condiciones">Acepto recibir <a href="#">Politica de Privacidad</a></label>
+                        <label for="terminos-condiciones">Acepto la <a href="privacidad.html">Política de Privacidad</a> y <a href="TerCondiciones.html">Términos (Regla 24h / 15 min)</a></label>
                         <p id="error-terminos" class="error">Debes aceptar los términos.</p>
                     </div><br>
 
                     <input type="submit" value="Agendar Cita" class="btn-submit">
                 </form>
-                <p>Para agendar su cita con un asistente, <a href="#">click aquí</a></p>
+                <p style="margin-top:12px;">¿Ya agendaste? <a href="mis_citas.html" style="font-weight:700; color:#0077b6;">Gestionar Mis Citas (Reprogramar / Cancelar)</a></p>
             </section>
         </div>
     </main>
@@ -180,7 +196,7 @@
             </div>
             <div class="modal-body">
                 <div class="modal-icon">
-                    <i class="fa-regular fa-paper-plane" style="font-size: 2rem; color: #00d2d3;"></i>
+                    <i class="fa-regular fa-paper-plane" style="font-size: 2rem; color: #029d56;"></i>
                 </div>
                 <p>Se te hará conocer los detalles de tu cita atraves de un mensaje de WhatsApp o correo electrónico en
                     los próximos minutos.</p>
@@ -195,9 +211,9 @@
                     <h4>Nosotros ▾</h4>
                     <div class="footer-content">
                         <ul>
-                            <li><a href="#">Quienes somos</a></li>
+                            <li><a href="Qsomos.html">Quienes somos</a></li>
                             <li><a href="#">Misión y Visión</a></li>
-                            <li><a href="#">Trabaja con nosotros</a></li>
+                            <li><a href="Contacto.html">Trabaja con nosotros</a></li>
                         </ul>
                     </div>
                 </div>
@@ -205,9 +221,9 @@
                     <h4>Nuestro Blog ▾</h4>
                     <div class="footer-content">
                         <ul>
-                            <li><a href="#">Noticias</a></li>
-                            <li><a href="#">Consejos</a></li>
-                            <li><a href="#">Autoexaminate</a></li>
+                            <li><a href="Blog.html">Noticias</a></li>
+                            <li><a href="Blog.html">Consejos</a></li>
+                            <li><a href="Blog.html">Autoexaminate</a></li>
                         </ul>
                     </div>
                 </div>
@@ -215,8 +231,8 @@
                     <h4>Información Legal ▾</h4>
                     <div class="footer-content">
                         <ul>
-                            <li><a href="#">Politicas de privacidad</a></li>
-                            <li><a href="#">Terminos y condiciones</a></li>
+                            <li><a href="privacidad.html">Politicas de privacidad</a></li>
+                            <li><a href="TerCondiciones.html">Terminos y condiciones</a></li>
                         </ul>
                     </div>
                 </div>
@@ -225,11 +241,8 @@
                     <div class="footer-content">
                         <div class="social-links">
                             <a href="https://www.facebook.com/share/1Bo4gejadn/"><i class="fab fa-facebook-f"></i></a>
-                            <a
-                                href="https://www.instagram.com/clinicacentenariodelnorte?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw=="><i
-                                    class="fab fa-instagram"></i></a>
-                            <a href="https://www.tiktok.com/@centenario_delnorte?_r=1&_t=ZS-91kjkdxP0vo"><i
-                                    class="fab fa-tiktok"></i></a>
+                            <a href="https://www.instagram.com/clinicacentenariodelnorte?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw=="><i class="fab fa-instagram"></i></a>
+                            <a href="https://www.tiktok.com/@centenario_delnorte?_r=1&_t=ZS-91kjkdxP0vo"><i class="fab fa-tiktok"></i></a>
                         </div>
                     </div>
                 </div>
@@ -238,6 +251,7 @@
     </footer>
 
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="js/layout.js"></script>
     <script src="js/agendar_cita.js"></script>
 </body>
 

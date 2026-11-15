@@ -14,7 +14,7 @@ body {
 }
 
 .staff-container h1 {
-    color: #000;
+    color: #343a40;
     font-size: 2rem;
     margin-bottom: 10px;
 }
@@ -43,7 +43,7 @@ body {
 }
 
 .search-container input::placeholder {
-    color: #aaa;
+    color: #cccccc;
 }
 
 .doctors-grid {
@@ -77,7 +77,7 @@ body {
 
 .doctor-image i {
     font-size: 3rem;
-    color: #999;
+    color: #666666;
 }
 
 .doctor-info {
@@ -298,7 +298,7 @@ body {
 .doctor-modal-stats {
     display: flex;
     justify-content: space-around;
-    background-color: #f8f9fa;
+    background-color: #f9f9f9;
     padding: 15px;
     border-radius: 10px;
     margin-bottom: 20px;
@@ -323,7 +323,7 @@ body {
 
 .doctor-modal-description {
     line-height: 1.6;
-    color: #444;
+    color: #343a40;
 }
 
 /* estilos para el dark mode */
@@ -396,7 +396,7 @@ body.dark-mode .subtitle {
 
 body.dark-mode .search-container input {
     background-color: #1e1e1e;
-    border-color: #444;
+    border-color: #343a40;
     color: #fff;
 }
 
@@ -461,7 +461,7 @@ body.dark-mode .stat-label {
 }
 
 body.dark-mode .doctor-modal-description {
-    color: #ddd;
+    color: #e0e0e0;
 }
 
 body.dark-mode .menu-toggle .bar {

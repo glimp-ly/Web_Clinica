@@ -2,26 +2,26 @@
    VARIABLES PROFESIONALES
 */
 :root {
-    --azul: #0A3A8C;
-    --verde: #0E9D57;
-    --celeste-fondo: #E6F7FF;
-    --texto: #1f2937;
+    --azul: #263193;
+    --verde: #029d56;
+    --celeste-fondo: #f0f4f8;
+    --texto: #343a40;
     --blanco: #ffffff;
 
     --bg: #ffffff;
-    --bg-soft: #f4f8ff;
+    --bg-soft: #f4f7f6;
     --card: rgba(255,255,255,.9);
-    --border: #e5e7eb;
+    --border: #e0e0e0;
     --shadow: 0 20px 45px rgba(0,0,0,.08);
 }
 
 /* 🌙 MODO OSCURO */
 body.theme-dark {
-    --bg: #0b1220;
-    --bg-soft: #0f172a;
-    --texto: #e5e7eb;
-    --card: rgba(15,23,42,.9);
-    --border: #1f2937;
+    --bg: #121212;
+    --bg-soft: #121212;
+    --texto: #e0e0e0;
+    --card: rgba(30,30,30,.9);
+    --border: #343a40;
     --shadow: 0 25px 60px rgba(0,0,0,.45);
 }
 
@@ -44,12 +44,8 @@ body {
 
 /* 
    PARTICULAS */
-#particles-bg {
-    position: fixed;
-    inset: 0;
-    z-index: -1;
-    pointer-events: none;
-}
+/* Fondo de partículas eliminado: #particles-bg ya no se usa. */
+#particles-bg { display: none !important; }
 
 /* 
    BANNER

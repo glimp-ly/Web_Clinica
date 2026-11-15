@@ -3,24 +3,24 @@
 ================================================== */
 :root {
     /* Paleta de Colores Principal */
-    --primary: #0f3f7e;          /* Azul corporativo */
-    --primary-light: #3b82f6;    /* Azul brillante para hovers */
-    --primary-dark: #0a254a;     /* Azul profundo */
+    --primary: #033076;          /* Azul corporativo */
+    --primary-light: #0077b6;    /* Azul brillante para hovers */
+    --primary-dark: #033076;     /* Azul profundo */
     
-    --secondary: #16a34a;        /* Verde éxito */
-    --secondary-light: #4ade80;  /* Verde claro */
+    --secondary: #28a745;        /* Verde éxito */
+    --secondary-light: #28a745;  /* Verde claro */
     
     /* Fondos y Textos */
-    --bg-body: #f8fafc;
+    --bg-body: #f4f7f6;
     --bg-card: #ffffff;
-    --text-main: #1e293b;
-    --text-muted: #64748b;
-    --border: #e2e8f0;
+    --text-main: #343a40;
+    --text-muted: #666666;
+    --border: #e0e0e0;
     
     /* Efectos y Sombras "Pro" */
     --shadow-sm: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-    --shadow-md: 0 10px 30px -5px rgba(15, 63, 126, 0.1);
-    --shadow-hover: 0 25px 50px -12px rgba(15, 63, 126, 0.25);
+    --shadow-md: 0 10px 30px -5px rgba(3,48,118, 0.1);
+    --shadow-hover: 0 25px 50px -12px rgba(3,48,118, 0.25);
     
     /* Variables para Glassmorphism */
     --glass: rgba(255, 255, 255, 0.85);
@@ -29,21 +29,21 @@
 
 /* MODO OSCURO */
 body.dark-mode {
-    --primary: #60a5fa;
-    --primary-light: #93c5fd;
-    --primary-dark: #1e3a8a;
-    --secondary: #22c55e;
-    --secondary-light: #86efac;
+    --primary: #4da3ff;
+    --primary-light: #4da3ff;
+    --primary-dark: #033076;
+    --secondary: #28a745;
+    --secondary-light: #28a745;
     
-    --bg-body: #0f172a;
-    --bg-card: #1e293b;
-    --text-main: #f1f5f9;
-    --text-muted: #94a3b8;
-    --border: #334155;
+    --bg-body: #121212;
+    --bg-card: #343a40;
+    --text-main: #e0e0e0;
+    --text-muted: #bbbbbb;
+    --border: #333333;
     
     --shadow-sm: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
     --shadow-md: 0 10px 30px -5px rgba(0, 0, 0, 0.4);
-    --glass: rgba(30, 41, 59, 0.85);
+    --glass: rgba(30,30,30, 0.85);
     --glass-border: rgba(255, 255, 255, 0.05);
 }
 
@@ -70,15 +70,8 @@ a { text-decoration: none; color: inherit; transition: 0.3s; }
 ul { list-style: none; }
 
 /* Fondo de partículas (asegura que esté detrás) */
-#particles-js, #particles {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: -1;
-    pointer-events: none;
-}
+/* Fondo de partículas eliminado: #particles-js ya no se usa. */
+#particles-js, #particles { display: none !important; }
 
 /* Utilidad para ocultar elementos con JS */
 .hidden { display: none !important; }
@@ -171,7 +164,7 @@ ul { list-style: none; }
 }
 
 .submenu li a:hover {
-    background: rgba(15, 63, 126, 0.05);
+    background: rgba(3,48,118, 0.05);
     color: var(--primary);
     padding-left: 25px; /* Pequeña animación de desplazamiento */
 }
@@ -249,7 +242,7 @@ ul { list-style: none; }
     position: relative;
     z-index: 2;
     padding: 20px;
-    background: linear-gradient(to right, rgba(15, 63, 126, 0.05), transparent);
+    background: linear-gradient(to right, rgba(3,48,118, 0.05), transparent);
     border-bottom: 1px solid var(--border);
 }
 .user-name { font-weight: 700; color: var(--primary); display: block; font-size: 1rem; }
@@ -270,8 +263,8 @@ ul { list-style: none; }
     color: var(--primary);
 }
 
-.popup-menu li a.logout { color: #ef4444; } /* Color rojo para cerrar sesión */
-.popup-menu li a.logout:hover { background: #fef2f2; color: #dc2626; }
+.popup-menu li a.logout { color: #d93025; } /* Color rojo para cerrar sesión */
+.popup-menu li a.logout:hover { background: #fff0f0; color: #d93025; }
 
 /* Menú Móvil (Hamburguesa) */
 .menu-toggle { 
@@ -339,7 +332,7 @@ ul { list-style: none; }
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
-    filter: drop-shadow(0 20px 40px rgba(15, 63, 126, 0.25));
+    filter: drop-shadow(0 20px 40px rgba(3,48,118, 0.25));
 }
 
 @keyframes float {
@@ -422,7 +415,7 @@ ul { list-style: none; }
 .icon {
     width: 64px;
     height: 64px;
-    background: linear-gradient(135deg, rgba(15, 63, 126, 0.1), rgba(22, 163, 74, 0.1));
+    background: linear-gradient(135deg, rgba(3,48,118, 0.1), rgba(22, 163, 74, 0.1));
     border-radius: 18px;
     display: flex;
     align-items: center;
@@ -437,7 +430,7 @@ ul { list-style: none; }
     transform: rotate(10deg) scale(1.1);
     background: var(--primary);
     color: #fff;
-    box-shadow: 0 10px 25px rgba(15, 63, 126, 0.3);
+    box-shadow: 0 10px 25px rgba(3,48,118, 0.3);
 }
 
 .card h3 {
@@ -471,7 +464,7 @@ ul { list-style: none; }
     border-color: var(--primary);
     background: var(--primary);
     color: #fff;
-    box-shadow: 0 5px 15px rgba(15, 63, 126, 0.3);
+    box-shadow: 0 5px 15px rgba(3,48,118, 0.3);
 }
 
 /* ==================================================
@@ -589,10 +582,10 @@ ul { list-style: none; }
     font-size: 1rem;
 }
 
-.btn-primary { background: var(--primary); color: white; box-shadow: 0 4px 12px rgba(15,63,126,0.25); }
+.btn-primary { background: var(--primary); color: white; box-shadow: 0 4px 12px rgba(3,48,118,0.25); }
 .btn-secondary { background: transparent; border: 2px solid var(--border); color: var(--text-main); }
 
-.btn-primary:hover { transform: translateY(-3px); background: var(--primary-light); box-shadow: 0 8px 20px rgba(15,63,126,0.35); }
+.btn-primary:hover { transform: translateY(-3px); background: var(--primary-light); box-shadow: 0 8px 20px rgba(3,48,118,0.35); }
 .btn-secondary:hover { background: rgba(0,0,0,0.03); border-color: var(--text-muted); }
 
 /* ==================================================
@@ -648,7 +641,7 @@ ul { list-style: none; }
     width: 42px;
     height: 42px;
     border-radius: 12px;
-    background: rgba(15, 63, 126, 0.08);
+    background: rgba(3,48,118, 0.08);
     color: var(--primary);
     display: flex;
     align-items: center;

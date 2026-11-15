@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mis Citas y Portal del Paciente — Clínica Centenario del Norte</title>
+    <link rel="icon" href="img/logo.png">
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/portales.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+    <button id="darkModeToggle" class="dark-mode-toggle" aria-label="Cambiar modo oscuro/claro">
+        <i class="fas fa-moon"></i>
+    </button>
+
+    <header class="header">
+        <a href="mis_citas.html" class="logo-link">
+            <div class="logo">CLINICA<br><span class="color-sec">CENTENARIO DEL NORTE</span></div>
+        </a>
+        <button class="menu-toggle" aria-label="Abrir menú">
+            <div class="bar"></div>
+            <div class="bar"></div>
+            <div class="bar"></div>
+        </button>
+        <nav class="main-nav">
+            <ul class="nav-links">
+                <li><a href="mis_citas.html" class="role-nav-active">Mis Citas y Lab</a></li>
+                <li><a href="agendar_cita.html">Agendar Cita</a></li>
+                <li><a href="farmacia.html">Farmacia</a></li>
+                <li><a href="Laboratorio.html">Laboratorio</a></li>
+                <li><a href="campañas.html">Campañas</a></li>
+                <li><a href="formulario_datos.html">Mi Ficha Médica</a></li>
+            </ul>
+            <div class="nav-actions">
+                <a href="login.html" class="btn btn-primary"><i class="fa-regular fa-user"></i>&nbsp; Iniciar Sesión</a>
+                <a href="register.html" class="btn btn-secondary"><i class="fa-regular fa-user"></i>&nbsp; Registrarse</a>
+                <div class="user-profile-container">
+                    <div class="user-icon" id="userIcon">
+                        <i class="fa-solid fa-circle-user"></i>
+                    </div>
+                    <div class="user-popup" id="userPopup">
+                        <div class="popup-header">
+                            <div class="popup-user-info">
+                                <p class="user-name">Invitado</p>
+                                <p class="user-email">Inicie sesión</p>
+                            </div>
+                        </div>
+                        <ul class="popup-menu"></ul>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main class="portal-wrapper">
+        <div id="patientAuthSection" class="portal-auth-gate" style="display:none;">
+            <h2><i class="fa-solid fa-hospital-user"></i> Acceso al Portal del Paciente</h2>
+            <p class="sub">Inicie sesión con sus credenciales o mediante Google para gestionar sus citas (Regla 24h / 15 min), recetas digitales y resultados de laboratorio.</p>
+            <form id="patientLoginForm">
+                <div class="portal-form-group">
+                    <label for="patEmail">Correo Electrónico</label>
+                    <input type="email" id="patEmail" class="portal-input" placeholder="carlos.ramirez@gmail.com" required>
+                </div>
+                <div class="portal-form-group">
+                    <label for="patPass">Contraseña</label>
+                    <input type="password" id="patPass" class="portal-input" placeholder="••••••••" required>
+                </div>
+                <button type="submit" class="btn-portal btn-portal-primary" style="width:100%; padding:10px;">Iniciar Sesión con Credenciales</button>
+            </form>
+            <button type="button" id="btnGooglePatient" class="btn-google-oauth">
+                <i class="fab fa-google" style="color:#0077b6;"></i> Continuar con Google (Pacientes)
+            </button>
+            <div style="margin-top:14px; font-size:0.82rem; color:#57606a; text-align:center;">
+                ¿Aún no tiene cuenta? <a href="register.html" style="color:#0077b6; font-weight:600;">Regístrese aquí</a>
+            </div>
+        </div>
+
+        <div id="patientDashboardSection" style="display:none;">
+            <div class="portal-topbar">
+                <div class="portal-title-group">
+                    <h1>Portal del Paciente — Mis Citas, Recetas y Resultados</h1>
+                    <p id="patientWelcomeSub">Gestione sus atenciones médicas, reprogramaciones (>24h), recetas y laboratorio.</p>
+                </div>
+                <div class="portal-user-badge">
+                    <a href="agendar_cita.html" class="btn-portal btn-portal-success"><i class="fa-solid fa-calendar-plus"></i> Nueva Cita</a>
+                    <a href="formulario_datos.html" class="btn-portal btn-portal-outline"><i class="fa-regular fa-id-card"></i> Mi Ficha Médica</a>
+                </div>
+            </div>
+
+            <div class="portal-tabs">
+                <button type="button" class="portal-tab-btn active" data-tab="tabCitas"><i class="fa-regular fa-calendar-check"></i> Mis Citas (RF-C06)</button>
+                <button type="button" class="portal-tab-btn" data-tab="tabRecetas"><i class="fa-solid fa-prescription-bottle-medical"></i> Mis Recetas Digitales</button>
+                <button type="button" class="portal-tab-btn" data-tab="tabLab"><i class="fa-solid fa-flask-vial"></i> Resultados de Laboratorio</button>
+                <button type="button" class="portal-tab-btn" data-tab="tabPedidos"><i class="fa-solid fa-receipt"></i> Boletas de Farmacia</button>
+            </div>
+
+            <div id="tabCitas" class="portal-panel active">
+                <div class="portal-card">
+                    <div class="portal-card-header">
+                        <h3>Historial y Programación de Citas</h3>
+                        <span style="font-size:0.8rem; color:#57606a;">Política TyC: Reprogramación/Cancelación hasta 24h antes · Tolerancia de espera: 15 min</span>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="portal-table">
+                            <thead>
+                                <tr>
+                                    <th>Código</th>
+                                    <th>Especialidad</th>
+                                    <th>Médico</th>
+                                    <th>Fecha y Hora</th>
+                                    <th>Turno</th>
+                                    <th>Estado</th>
+                                    <th>Acciones (Regla 24h)</th>
+                                </tr>
+                            </thead>
+                            <tbody id="misCitasBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div id="tabRecetas" class="portal-panel">
+                <div class="portal-card">
+                    <div class="portal-card-header">
+                        <h3>Recetas Médicas Digitales Emitidas</h3>
+                        <a href="farmacia.html" class="btn-portal btn-portal-primary">Usar Código en Farmacia Virtual</a>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="portal-table">
+                            <thead>
+                                <tr>
+                                    <th>Código Receta</th>
+                                    <th>Médico / Especialidad</th>
+                                    <th>Diagnóstico</th>
+                                    <th>Medicamentos Indicados</th>
+                                    <th>Vigencia</th>
+                                    <th>Estado</th>
+                                </tr>
+                            </thead>
+                            <tbody id="misRecetasBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div id="tabLab" class="portal-panel">
+                <div class="portal-card">
+                    <div class="portal-card-header">
+                        <h3>Órdenes y Resultados de Laboratorio</h3>
+                        <a href="Laboratorio.html" class="btn-portal btn-portal-outline">Ir a Catálogo de Laboratorio</a>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="portal-table">
+                            <thead>
+                                <tr>
+                                    <th>Código Orden</th>
+                                    <th>Análisis Solicitados</th>
+                                    <th>Total</th>
+                                    <th>Estado</th>
+                                    <th>Resumen Clínico</th>
+                                    <th>Informe</th>
+                                </tr>
+                            </thead>
+                            <tbody id="misLabBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div id="tabPedidos" class="portal-panel">
+                <div class="portal-card">
+                    <div class="portal-card-header">
+                        <h3>Compras y Boletas Electrónicas de Farmacia</h3>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="portal-table">
+                            <thead>
+                                <tr>
+                                    <th>Boleta</th>
+                                    <th>Fecha</th>
+                                    <th>Productos</th>
+                                    <th>Subtotal</th>
+                                    <th>Cobertura EPS</th>
+                                    <th>Total Pagado</th>
+                                    <th>Método</th>
+                                </tr>
+                            </thead>
+                            <tbody id="misPedidosBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-row">
+                <div class="footer-links">
+                    <h4>Nosotros ▾</h4>
+                    <div class="footer-content">
+                        <ul>
+                            <li><a href="Qsomos.html">Quienes somos</a></li>
+                            <li><a href="Contacto.html">Trabaja con nosotros</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="footer-links">
+                    <h4>Nuestro Blog ▾</h4>
+                    <div class="footer-content">
+                        <ul>
+                            <li><a href="Blog.html">Noticias y Consejos</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="footer-links">
+                    <h4>Información Legal ▾</h4>
+                    <div class="footer-content">
+                        <ul>
+                            <li><a href="privacidad.html">Políticas de privacidad</a></li>
+                            <li><a href="TerCondiciones.html">Términos y condiciones</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="footer-links">
+                    <h4>Síguenos ▾</h4>
+                    <div class="footer-content">
+                        <div class="social-links">
+                            <a href="https://www.facebook.com/share/1Bo4gejadn/"><i class="fab fa-facebook-f"></i></a>
+                            <a href="https://www.instagram.com/clinicacentenariodelnorte"><i class="fab fa-instagram"></i></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/layout.js"></script>
+    <script src="js/mis_citas.js"></script>
+</body>
+</html>
