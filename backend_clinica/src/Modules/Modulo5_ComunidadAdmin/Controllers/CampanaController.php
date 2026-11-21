@@ -45,6 +45,9 @@ final class CampanaController
         if ($titulo === '' || $cuposTotales <= 0) {
             Response::error('Título y cupos totales (>0) son obligatorios.', 422);
         }
+        if (strtotime($fechaFin) < strtotime($fechaInicio)) {
+            Response::error('La fecha de fin no puede ser anterior a la fecha de inicio.', 422);
+        }
 
         $db = Database::getConnection();
         $ins = $db->prepare('INSERT INTO campanas (titulo, descripcion, icono, rango_fechas_texto, fecha_inicio, fecha_fin, cupos_totales, cupos_ocupados, estado) VALUES (?, ?, ?, ?, ?, ?, ?, 0, ?)');

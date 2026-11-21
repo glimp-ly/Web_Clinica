@@ -79,6 +79,9 @@ final class LaboratorioController
         foreach ($analisisItems as $a) {
             $nombreA = trim((string)($a['nombre'] ?? 'Análisis Clínico'));
             $cant = (int)($a['cantidad'] ?? 1);
+            if ($cant <= 0) {
+                Response::error("La cantidad para '{$nombreA}' debe ser mayor a 0.", 422);
+            }
             $stmtCat->execute([$nombreA]);
             $precio = (float)($stmtCat->fetchColumn() ?: ($a['precio'] ?? 40.00));
             $total += $precio * $cant;

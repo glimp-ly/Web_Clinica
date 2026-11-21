@@ -224,25 +224,48 @@ final class CitaController
             $medicoDestinoId = (int)($stmtM->fetchColumn() ?: 1);
         }
 
-        $codigoDerivada = 'DER-' . date('Y') . '-' . strtoupper(substr(bin2hex(random_bytes(3)), 0, 5));
-        $ins = $db->prepare('INSERT INTO citas (codigo_cita, paciente_id, usuario_id, dni_paciente, nombre_paciente, telefono_paciente, email_paciente, especialidad_id, medico_id, fecha_cita, fecha_fin_rango, hora_cita, turno, estado, motivo_consulta, derivada_de_cita_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, "manana", "programada", ?, ?)');
-        $ins->execute([
-            $codigoDerivada,
-            $origen['paciente_id'],
-            $origen['usuario_id'],
-            $origen['dni_paciente'],
-            $origen['nombre_paciente'],
-            $origen['telefono_paciente'],
-            $origen['email_paciente'],
-            $espDestinoId,
-            $medicoDestinoId,
-            $fechaDerivada,
-            $fechaDerivada,
-            $horaDerivada,
-            "Interconsulta derivada: {$motivoDerivacion}",
-            $citaOrigenId,
-        ]);
-        $nuevaId = (int)$db->lastInsertId();
+        $db->beginTransaction();
+        try {
+            $stmtBlk = $db->prepare('SELECT motivo FROM medico_disponibilidad WHERE medico_id = ? AND fecha = ? AND estado IN ("bloqueado", "ausencia") AND (turno = "completo" OR (? BETWEEN hora_inicio AND hora_fin)) FOR UPDATE');
+            $stmtBlk->execute([$medicoDestinoId, $fechaDerivada, $horaDerivada]);
+            if ($bloqueo = $stmtBlk->fetch()) {
+                $db->rollBack();
+                Response::error('El médico destino tiene bloqueado ese horario: ' . $bloqueo['motivo'], 409);
+            }
+
+            $stmtSolape = $db->prepare('SELECT id FROM citas WHERE medico_id = ? AND fecha_cita = ? AND hora_cita = ? AND estado NOT IN ("cancelada") FOR UPDATE');
+            $stmtSolape->execute([$medicoDestinoId, $fechaDerivada, $horaDerivada]);
+            if ($stmtSolape->fetch()) {
+                $db->rollBack();
+                Response::error('El médico destino ya cuenta con una cita programada en esa fecha y hora (409).', 409);
+            }
+
+            $codigoDerivada = 'DER-' . date('Y') . '-' . strtoupper(substr(bin2hex(random_bytes(3)), 0, 5));
+            $ins = $db->prepare('INSERT INTO citas (codigo_cita, paciente_id, usuario_id, dni_paciente, nombre_paciente, telefono_paciente, email_paciente, especialidad_id, medico_id, fecha_cita, fecha_fin_rango, hora_cita, turno, estado, motivo_consulta, derivada_de_cita_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, "manana", "programada", ?, ?)');
+            $ins->execute([
+                $codigoDerivada,
+                $origen['paciente_id'],
+                $origen['usuario_id'],
+                $origen['dni_paciente'],
+                $origen['nombre_paciente'],
+                $origen['telefono_paciente'],
+                $origen['email_paciente'],
+                $espDestinoId,
+                $medicoDestinoId,
+                $fechaDerivada,
+                $fechaDerivada,
+                $horaDerivada,
+                "Interconsulta derivada: {$motivoDerivacion}",
+                $citaOrigenId,
+            ]);
+            $nuevaId = (int)$db->lastInsertId();
+            $db->commit();
+        } catch (Throwable $e) {
+            if ($db->inTransaction()) {
+                $db->rollBack();
+            }
+            throw $e;
+        }
 
         AuditService::queueNotification(
             $origen['email_paciente'],
@@ -284,7 +307,11 @@ final class CitaController
         if (!preg_match('/^\d{9}$/', $telefono)) $errors['numero_cel'] = 'El número de celular debe tener 9 dígitos.';
         if (!filter_var($email, FILTER_VALIDATE_EMAIL)) $errors['email'] = 'Ingrese un correo electrónico válido.';
         if ($espInput === '') $errors['especialidad'] = 'Seleccione una especialidad.';
-        if ($fechaInicio === '') $errors['fecha_inicio'] = 'Seleccione la fecha de la cita.';
+        if ($fechaInicio === '') {
+            $errors['fecha_inicio'] = 'Seleccione la fecha de la cita.';
+        } elseif ($fechaInicio < date('Y-m-d')) {
+            $errors['fecha_inicio'] = 'No es posible agendar citas en fechas pasadas.';
+        }
         if ($fechaFin !== '' && $fechaFin < $fechaInicio) $errors['fecha_fin'] = 'La fecha fin no puede ser menor a la fecha de inicio.';
         if (!in_array($turno, ['manana', 'tarde', 'ambos'], true)) $errors['turno'] = 'Seleccione un turno válido.';
         if (!$aceptoTerminos) $errors['terminos'] = 'Debe aceptar la Política de Privacidad y Términos.';

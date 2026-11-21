@@ -68,6 +68,14 @@ final class RecetaController
             Response::error('Paciente con DNI ' . $dni . ' no encontrado.', 404);
         }
 
+        if ($citaId !== null) {
+            $stmtC = $db->prepare('SELECT id FROM citas WHERE id = ? LIMIT 1');
+            $stmtC->execute([$citaId]);
+            if (!$stmtC->fetch()) {
+                Response::error("La cita ID {$citaId} indicada no existe.", 404);
+            }
+        }
+
         $medicoId = (int)($user['medico']['id'] ?? $body['medico_id'] ?? 1);
         $codigoReceta = 'REC-' . date('Y') . '-' . strtoupper(substr(bin2hex(random_bytes(3)), 0, 5));
         $emision = date('Y-m-d');

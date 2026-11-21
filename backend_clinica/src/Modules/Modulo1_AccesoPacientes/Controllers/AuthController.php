@@ -25,8 +25,8 @@ final class AuthController
         if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
             $errors['email'] = 'Ingrese un correo electrónico válido.';
         }
-        if (strlen($password) < 6) {
-            $errors['password'] = 'La contraseña debe tener al menos 6 caracteres.';
+        if (strlen($password) < 8 || !preg_match('/[A-Z]/', $password) || !preg_match('/\d/', $password)) {
+            $errors['password'] = 'La contraseña debe tener al menos 8 caracteres, una mayúscula y un número.';
         }
         if ($password !== $confirm) {
             $errors['confirmPassword'] = 'Las contraseñas no coinciden.';
@@ -226,8 +226,8 @@ final class AuthController
         $body = $req->body();
         $token = trim((string)($body['token'] ?? ''));
         $newPass = (string)($body['password'] ?? '');
-        if ($token === '' || strlen($newPass) < 6) {
-            Response::error('Token y nueva contraseña (mínimo 6 caracteres) son obligatorios.', 422);
+        if ($token === '' || strlen($newPass) < 8 || !preg_match('/[A-Z]/', $newPass) || !preg_match('/\d/', $newPass)) {
+            Response::error('Token y nueva contraseña segura (mínimo 8 caracteres, una mayúscula y un número) son obligatorios.', 422);
         }
 
         $stmt = $db->prepare('SELECT id, email, reset_expira FROM usuarios WHERE reset_token = ? LIMIT 1');

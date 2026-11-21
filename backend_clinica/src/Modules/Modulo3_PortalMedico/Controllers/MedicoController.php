@@ -128,6 +128,9 @@ final class MedicoController
             $turno = in_array($body['turno'] ?? '', ['manana', 'tarde', 'completo'], true) ? $body['turno'] : 'manana';
             $horaIni = trim((string)($body['hora_inicio'] ?? ($turno === 'tarde' ? '14:00:00' : '08:00:00')));
             $horaFin = trim((string)($body['hora_fin'] ?? ($turno === 'tarde' ? '19:00:00' : '13:00:00')));
+            if ($horaIni >= $horaFin) {
+                Response::error('La hora de inicio debe ser menor a la hora de fin.', 422);
+            }
             $estado = in_array($body['estado'] ?? '', ['disponible', 'bloqueado', 'ausencia'], true) ? $body['estado'] : 'bloqueado';
             $motivo = trim((string)($body['motivo'] ?? 'Bloqueo de horario'));
 
