@@ -57,6 +57,15 @@ def main() -> int:
         runner.check("TC-M3-03", "[RF-M01/RF-B02] RBAC bloquea acceso de paciente a /medicos/mi-resumen (403)", tc03)
 
         def tc04():
+            st_inv, _ = med.post("/api/medicos/mi-disponibilidad", {
+                "fecha": block_date,
+                "turno": "tarde",
+                "hora_inicio": "18:00:00",
+                "hora_fin": "08:00:00",
+                "estado": "bloqueado",
+                "motivo": "Rango inválido QA",
+            })
+            assert st_inv == 422, f"Rango horario invertido debe devolver 422, obtuvo {st_inv}"
             st_post, d_post = med.post("/api/medicos/mi-disponibilidad", {
                 "fecha": block_date,
                 "turno": "tarde",
@@ -72,7 +81,7 @@ def main() -> int:
             assert match, "No apareció el bloqueo registrado"
             return int(match[0]["id"])
 
-        created_disp_id = runner.check("TC-M3-04", "[RF-M02] Registro y consulta de bloqueo en disponibilidad médica", tc04)
+        created_disp_id = runner.check("TC-M3-04", "[RF-M02] Validación rango horario (422) y registro de bloqueo", tc04)
 
         def tc05():
             pac = ApiClient()
@@ -123,6 +132,13 @@ def main() -> int:
         created_hc_id = runner.check("TC-M3-07", "[RF-M04/RF-B03] Registro de evolución CIE-10 auditada (422 y 201)", tc07)
 
         def tc08():
+            st_bad_c, _ = med.post("/api/recetas", {
+                "dni_paciente": "71234561",
+                "cita_id": 999999,
+                "diagnostico": "Cita inexistente QA",
+                "medicamentos": [{"nombre": "Paracetamol 500mg", "dosis": "1 c/8h"}],
+            })
+            assert st_bad_c == 404, f"cita_id inexistente debe devolver 404, obtuvo {st_bad_c}"
             st_ok, data = med.post("/api/recetas", {
                 "dni_paciente": "71234561",
                 "diagnostico": "Prevención QA Módulo 3",
@@ -134,7 +150,7 @@ def main() -> int:
             assert st_list == 200 and any(r["codigo_receta"] == data["codigo_receta"] for r in d_list["recetas"])
             return int(data["id"]), str(data["codigo_receta"])
 
-        rec_res = runner.check("TC-M3-08", "[RF-M05] Emisión y consulta de receta digital vigente (/api/recetas)", tc08)
+        rec_res = runner.check("TC-M3-08", "[RF-M05] Validación cita_id (404), emisión y consulta de receta digital", tc08)
         if rec_res:
             created_receta_id, created_receta_code = rec_res
 
@@ -169,38 +185,40 @@ def main() -> int:
 
         def tc11():
             nonlocal created_bad_disp_id
-            st, data = med.post("/api/medicos/mi-disponibilidad", {
+            st_c, _ = med.post("/api/medicos/mi-disponibilidad", {
                 "fecha": block_date,
-                "turno": "tarde",
-                "hora_inicio": "18:00:00",
-                "hora_fin": "08:00:00",
+                "turno": "manana",
+                "hora_inicio": "08:00:00",
+                "hora_fin": "11:00:00",
                 "estado": "bloqueado",
-                "motivo": f"Rango invertido QA {tag}",
+                "motivo": f"Bloqueo privado Dr Juan QA {tag}",
             })
-            if st == 200:
-                _, d_get = med.get("/api/medicos/mi-disponibilidad")
-                match = [b for b in d_get.get("disponibilidad", []) if b["motivo"] == f"Rango invertido QA {tag}"]
-                if match:
-                    created_bad_disp_id = int(match[0]["id"])
-            assert st == 422, f"NO CUMPLE RF-D05 (hora_inicio >= hora_fin): aceptó 18:00-08:00 con HTTP {st}"
+            assert st_c == 200
+            _, d_get = med.get("/api/medicos/mi-disponibilidad")
+            match = [b for b in d_get.get("disponibilidad", []) if b["motivo"] == f"Bloqueo privado Dr Juan QA {tag}"]
+            assert match
+            created_bad_disp_id = int(match[0]["id"])
+            med2 = ApiClient()
+            assert med2.login("maria.rodriguez@centenario.pe", "Medico123!")[0] == 200
+            st_idor, _ = med2.delete(f"/api/medicos/mi-disponibilidad/{created_bad_disp_id}")
+            assert st_idor == 403, f"NO CUMPLE RF-D05 (IDOR disponibilidad): Dra. María eliminó bloqueo del Dr. Juan con HTTP {st_idor}"
 
-        runner.check("TC-M3-11", "[RF-D05/RF-M02] Rechazo de rango horario invertido en disponibilidad (422)", tc11)
+        runner.check("TC-M3-11", "[RF-D05/RF-M02] Aislamiento anti-IDOR al eliminar disponibilidad de otro médico (403)", tc11)
 
         def tc12():
             nonlocal created_bad_receta_id, created_bad_receta_code
             st, data = med.post("/api/recetas", {
                 "dni_paciente": "71234561",
-                "cita_id": 999999,
-                "diagnostico": "Receta cita inexistente QA",
-                "indicaciones": "Prueba integridad referencial",
-                "medicamentos": [{"nombre": "Paracetamol 500mg", "dosis": "1 c/8h"}],
+                "diagnostico": "Infección respiratoria QA",
+                "indicaciones": "Prueba control de alergias",
+                "medicamentos": [{"nombre": "Penicilina 500mg", "dosis": "1 cada 8h"}],
             })
             if st == 201 and isinstance(data, dict) and data.get("id"):
                 created_bad_receta_id = int(data["id"])
                 created_bad_receta_code = str(data["codigo_receta"])
-            assert st in (404, 422), f"NO CUMPLE RF-D06 (cita_id inexistente): aceptó cita_id=999999 con HTTP {st}"
+            assert st in (409, 422), f"NO CUMPLE RF-D06 (alergia clínica): prescribió Penicilina a paciente alérgico a 'Penicilina, Sulfas' con HTTP {st}"
 
-        runner.check("TC-M3-12", "[RF-D06/RF-M05] Validación de existencia de cita_id al emitir receta (404/422)", tc12)
+        runner.check("TC-M3-12", "[RF-D06/RF-M05] Alerta/bloqueo por alergia registrada al emitir receta (409/422)", tc12)
     finally:
         cleanup_stmts: list[str] = []
         if created_disp_id:

@@ -18,6 +18,7 @@ def main() -> int:
     created_cita_ids: list[int] = []
     created_codigos: list[str] = []
     noshow_applied = False
+    finalizada_applied = False
     future_date = (datetime.date.today() + datetime.timedelta(days=15)).isoformat()
     reprog_date = (datetime.date.today() + datetime.timedelta(days=16)).isoformat()
     soon_date = datetime.date.today().isoformat()
@@ -57,6 +58,8 @@ def main() -> int:
         }
 
         def tc03():
+            st_past, _ = pac.post("/api/citas", dict(base_payload, fecha_inicio="2020-01-15"))
+            assert st_past == 422, f"Fecha pasada debe rechazarse con 422, obtuvo {st_past}"
             st, data = pac.post("/api/citas", base_payload)
             assert st == 201 and data.get("ok") is True, f"{st} {data}"
             created_cita_ids.append(data["cita"]["id"])
@@ -67,7 +70,7 @@ def main() -> int:
             assert st_r == 200 and any(data["cita"]["codigo_cita"] in n["asunto"] for n in rep["notificaciones"]), "Notificación no encolada"
             return data["cita"]
 
-        cita = runner.check("TC-M2-03", "[RF-C05/RF-C07] Reserva de cita médica (201) y notificación encolada", tc03)
+        cita = runner.check("TC-M2-03", "[RF-C05/RF-C07] Rechazo fecha pasada (422), reserva (201) y notificación", tc03)
 
         def tc04():
             st, data = pac.post("/api/citas", base_payload)
@@ -125,8 +128,15 @@ def main() -> int:
             assert st_der == 201 and d_der.get("id"), f"{st_der} {d_der}"
             created_cita_ids.append(d_der["id"])
             created_codigos.append(d_der["codigo_cita"])
+            st_der_dup, _ = med.post(f"/api/citas/{cita['id']}/derivar", {
+                "especialidad_id": 2,
+                "fecha_cita": reprog_date,
+                "hora_cita": "12:00",
+                "motivo": "Interconsulta solapada QA",
+            })
+            assert st_der_dup == 409, f"Derivación en slot ocupado debe devolver 409, obtuvo {st_der_dup}"
 
-        runner.check("TC-M2-08", "[RF-M03/RF-M07] Cambio a en_atencion y derivación interconsulta", tc08)
+        runner.check("TC-M2-08", "[RF-M03/RF-M07] Cambio a en_atencion, derivación (201) y bloqueo solape (409)", tc08)
 
         def tc09():
             nonlocal noshow_applied
@@ -150,33 +160,43 @@ def main() -> int:
         runner.check("TC-M2-10", "[RF-C01/RF-C08] Accesibilidad HTTP 200 de vistas de citas y servicios", tc10)
 
         def tc11():
-            past_payload = dict(base_payload, fecha_inicio="2020-01-15", hora_cita="09:00", turno="manana")
-            st, data = pac.post("/api/citas", past_payload)
-            if st == 201 and isinstance(data, dict) and data.get("cita"):
-                created_cita_ids.append(int(data["cita"]["id"]))
-                created_codigos.append(str(data["cita"]["codigo_cita"]))
-            assert st == 422, f"NO CUMPLE RF-D03 (fecha pasada): permitió agendar el 2020-01-15 con HTTP {st}"
-
-        runner.check("TC-M2-11", "[RF-D03/RF-C05] Bloqueo de reserva de cita en fecha pasada (422)", tc11)
-
-        def tc12():
-            assert cita is not None
+            nonlocal finalizada_applied
+            fin_payload = dict(base_payload, fecha_inicio=reprog_date, hora_cita="09:00", turno="manana")
+            st_c, d_c = pac.post("/api/citas", fin_payload)
+            assert st_c == 201, f"{st_c} {d_c}"
+            fin_id = int(d_c["cita"]["id"])
+            created_cita_ids.append(fin_id)
+            created_codigos.append(str(d_c["cita"]["codigo_cita"]))
             med = ApiClient()
             assert med.login("juan.perez@centenario.pe", "Medico123!")[0] == 200
-            st_dup, d_dup = med.post(f"/api/citas/{cita['id']}/derivar", {
-                "especialidad_id": 2,
-                "fecha_cita": reprog_date,
-                "hora_cita": "12:00",
-                "motivo": "Interconsulta duplicada en slot ya ocupado QA",
+            st_f, _ = med.put(f"/api/citas/{fin_id}", {
+                "estado": "finalizada",
+                "observaciones_atencion": "Atención concluida satisfactoriamente QA",
             })
-            if st_dup == 201 and isinstance(d_dup, dict) and d_dup.get("id"):
-                created_cita_ids.append(int(d_dup["id"]))
-                created_codigos.append(str(d_dup["codigo_cita"]))
-            assert st_dup == 409, f"NO CUMPLE RF-D04 (solape en derivación): esperaba 409, obtuvo {st_dup}"
+            assert st_f == 200
+            finalizada_applied = True
+            st_del, _ = pac.delete(f"/api/citas/{fin_id}")
+            assert st_del in (409, 422), f"NO CUMPLE RF-D03 (estado terminal): permitió cancelar cita ya finalizada con HTTP {st_del}"
 
-        runner.check("TC-M2-12", "[RF-D04/RF-M07] Control de solape de agenda al derivar interconsulta (409)", tc12)
+        runner.check("TC-M2-11", "[RF-D03/RF-C06] Inmutabilidad de cita finalizada ante cancelación (409/422)", tc11)
+
+        def tc12():
+            slot_date = (datetime.date.today() + datetime.timedelta(days=17)).isoformat()
+            st1, d1 = pac.post("/api/citas", dict(base_payload, medico_id=1, fecha_inicio=slot_date, hora_cita="10:00"))
+            assert st1 == 201, f"{st1} {d1}"
+            created_cita_ids.append(int(d1["cita"]["id"]))
+            created_codigos.append(str(d1["cita"]["codigo_cita"]))
+            st2, d2 = pac.post("/api/citas", dict(base_payload, especialidad="3", medico_id=3, fecha_inicio=slot_date, hora_cita="10:00"))
+            if st2 == 201 and isinstance(d2, dict) and d2.get("cita"):
+                created_cita_ids.append(int(d2["cita"]["id"]))
+                created_codigos.append(str(d2["cita"]["codigo_cita"]))
+            assert st2 == 409, f"NO CUMPLE RF-D04 (doble cita simultánea del paciente): permitió agendar con 2 médicos a la misma hora con HTTP {st2}"
+
+        runner.check("TC-M2-12", "[RF-D04/RF-C05] Bloqueo de doble cita simultánea del mismo paciente (409)", tc12)
     finally:
         cleanup_stmts: list[str] = []
+        if finalizada_applied:
+            cleanup_stmts.append('$db->prepare("UPDATE medicos SET consultas_realizadas = GREATEST(0, consultas_realizadas - 1) WHERE id = 1")->execute();')
         if noshow_applied:
             cleanup_stmts.append('$db->prepare("UPDATE pacientes SET penalidad_noshow = GREATEST(0, penalidad_noshow - 20.00), deuda_pendiente = GREATEST(0, deuda_pendiente - 20.00) WHERE dni = ?")->execute(["71234561"]);')
         if created_cita_ids:

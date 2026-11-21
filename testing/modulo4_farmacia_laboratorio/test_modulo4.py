@@ -107,6 +107,13 @@ def main() -> int:
         runner.check("TC-M4-06", "[RF-C10] Consulta del catálogo de análisis clínicos de laboratorio", tc06)
 
         def tc07():
+            st_neg, _ = pac.post("/api/ordenes-lab", {
+                "dni_paciente": "71234561",
+                "nombre_paciente": "Carlos Alberto Ramírez Soto",
+                "metodo_pago": "yape",
+                "analisis": [{"nombre": "Glucosa", "cantidad": -2}],
+            })
+            assert st_neg == 422, f"Cantidad negativa en orden lab debe devolver 422, obtuvo {st_neg}"
             st, data = pac.post("/api/ordenes-lab", {
                 "dni_paciente": "71234561",
                 "nombre_paciente": "Carlos Alberto Ramírez Soto",
@@ -117,7 +124,7 @@ def main() -> int:
             o = data["orden"]
             return int(o["id"]), str(o["codigo_orden"])
 
-        ord_res = runner.check("TC-M4-07", "[RF-C10/RF-M05] Generación de orden de laboratorio y boleta (201)", tc07)
+        ord_res = runner.check("TC-M4-07", "[RF-C10/RF-M05] Validación cantidad>0 (422) y generación orden lab (201)", tc07)
         if ord_res:
             created_orden_id, created_orden_code = ord_res
 
@@ -177,19 +184,24 @@ def main() -> int:
         runner.check("TC-M4-11", "[RF-D07/RF-C09] Bloqueo de reutilización de receta ya dispensada (409/422)", tc11)
 
         def tc12():
-            nonlocal created_bad_orden_id, created_bad_orden_code
-            st, data = pac.post("/api/ordenes-lab", {
-                "dni_paciente": "71234561",
-                "nombre_paciente": "Carlos Alberto Ramírez Soto",
+            assert receta_prod is not None
+            pac2 = ApiClient()
+            assert pac2.login("jorge.chavez@gmail.com", "Paciente123!")[0] == 200
+            st, data = pac2.post("/api/pedidos", {
+                "dni": "73456783",
+                "nombre": "Jorge Luis Chávez Díaz",
                 "metodo_pago": "yape",
-                "analisis": [{"nombre": "Glucosa", "cantidad": -2}],
+                "codigo_receta": "REC-2026-001",
+                "usar_eps": False,
+                "items": [{"id": receta_prod["id"], "quantity": 1}],
             })
-            if st == 201 and isinstance(data, dict) and data.get("orden"):
-                created_bad_orden_id = int(data["orden"]["id"])
-                created_bad_orden_code = str(data["orden"]["codigo_orden"])
-            assert st == 422, f"NO CUMPLE RF-D08 (cantidad negativa en lab): creó orden con total={data.get('orden', {}).get('total')} y HTTP {st}"
+            if st == 201 and isinstance(data, dict) and data.get("boleta"):
+                created_pedido_ids.append(int(data["boleta"]["pedido_id"]))
+                created_boletas.append(str(data["boleta"]["codigo_boleta"]))
+                bought_products.append(int(receta_prod["id"]))
+            assert st in (403, 422), f"NO CUMPLE RF-D08 (titularidad receta): permitió al DNI 73456783 comprar con REC-2026-001 del DNI 71234561 (HTTP {st})"
 
-        runner.check("TC-M4-12", "[RF-D08/RF-C10] Rechazo de cantidad negativa/cero en orden de laboratorio (422)", tc12)
+        runner.check("TC-M4-12", "[RF-D08/RF-C09] Validación de titularidad (DNI) de receta digital en farmacia (403/422)", tc12)
     finally:
         cleanup_stmts: list[str] = []
         for pid in bought_products:

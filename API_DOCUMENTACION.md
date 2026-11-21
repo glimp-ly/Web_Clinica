@@ -12,7 +12,7 @@ Documentación completa de los **56 endpoints/operaciones HTTP** del backend PHP
 - **Preflight CORS**: `OPTIONS /api/*` devuelve `204 No Content`.
 - **Autenticación y Sesión**:
   - Basada en **JWT (HS256)** firmado en servidor (`App\Core\JwtAuth`).
-  - Se entrega automáticamente en cookie **`HttpOnly`** al iniciar sesión o registrarse, y también se admite mediante encabezado `Authorization: Bearer <token>`.
+  - Se entrega automáticamente en cookie **`HttpOnly`** (`centenario_token`) al iniciar sesión o registrarse, y también se admite mediante encabezado `Authorization: Bearer <token>`.
   - **Roles del sistema**: `paciente`, `medico`, `admin` (y acceso `Público` para catálogos/formularios abiertos).
 
 ### Códigos de Estado HTTP Estándar

@@ -17,12 +17,12 @@
 | `TC-M4-04` | `RF-C09`, `RF-B05` | Positivo | Compra con cobertura EPS y emisión de boleta (`POST /api/pedidos`) | `201`, `descuento_eps > 0` y código `BOL-F...` |
 | `TC-M4-05` | `RF-C09`, `RF-M05` | Integración | Compra de antibiótico validando receta digital (`REC-2026-001`) | `201`, boleta vinculada a `REC-2026-001` |
 | `TC-M4-06` | `RF-C10` | Positivo | Catálogo de análisis clínicos (`GET /api/laboratorio/catalogo`) | `200`, lista de exámenes y precios |
-| `TC-M4-07` | `RF-C10`, `RF-M05` | Positivo | Generación de orden lab (`POST /api/ordenes-lab`) | `201`, códigos `LAB-...` y `BOL-L...` |
+| `TC-M4-07` | `RF-C10`, `RF-M05` | Validación / Positivo | Rechazo cantidad `<= 0` (`422`) y generación de orden lab (`POST /api/ordenes-lab`) | `422` en cantidad negativa; `201` con códigos `LAB-...` y `BOL-L...` |
 | `TC-M4-08` | `RF-C10`, `RF-M06` | Positivo | Publicación de resultado por médico (`PUT /api/ordenes-lab/{id}`) | `200`, estado `publicado` |
 | `TC-M4-09` | `RF-C10`, `RF-M06` | Seguridad / RBAC | Consulta `GET /api/resultados/{codigo}`: anónimo (`403`), titular (`200`), médico tratante (`200`) | Acceso restringido y auditado |
 | `TC-M4-10` | `RF-B07`, `RNF-10` | Admin / Smoke | Actualización admin `PUT /api/productos/{id}` (`200`) y vistas `farmacia.html` / `Laboratorio.html` (`200`) | `200` en todas las comprobaciones |
 | `TC-M4-11` | `RF-D07` (`RF-C09`) | Defecto (`NO CUMPLE`) | Reutilización de receta digital `REC-2026-001` en una segunda compra | **Esperado**: `409`/`422` (receta ya dispensada) · **Actual**: `201` (permite reutilizarla) |
-| `TC-M4-12` | `RF-D08` (`RF-C10`) | Defecto (`NO CUMPLE`) | Orden de laboratorio con cantidad negativa (`cantidad: -2`) | **Esperado**: `422` · **Actual**: `201` (genera orden con total negativo) |
+| `TC-M4-12` | `RF-D08` (`RF-C09`) | Defecto (`NO CUMPLE`) | Validación de titularidad (DNI) de receta digital: paciente `73456783` usa `REC-2026-001` del DNI `71234561` | **Esperado**: `403`/`422` · **Actual**: `201` (no cruza el DNI del comprador con el de la receta) |
 
 ### Verificaciones RNF Complementarias
 - `RNF-03`: Lighthouse rendimiento ≥85, tamaño de página <1.5MB y búsqueda instantánea <200ms en vitrina farmacia/laboratorio.

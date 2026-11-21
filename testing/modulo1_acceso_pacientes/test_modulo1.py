@@ -17,14 +17,18 @@ def main() -> int:
 
     tag = uuid.uuid4().hex[:6]
     test_email = f"qa.m1.{tag}@centenario.test"
-    weak_email = f"qa.weak.{tag}@centenario.test"
     test_dni = "89" + str(int(tag, 16) % 1000000).zfill(6)
     test_user_id: int | None = None
-    weak_user_id: int | None = None
 
     try:
         def tc01():
             c = ApiClient()
+            st_weak, _ = c.post("/api/auth/register", {
+                "email": f"weak.{tag}@centenario.test",
+                "password": "123456",
+                "confirmPassword": "123456",
+            })
+            assert st_weak == 422, f"Contraseña débil debe rechazarse con 422, obtuvo {st_weak}"
             st, data = c.post("/api/auth/register", {
                 "email": test_email,
                 "password": "QaPassword123!",
@@ -36,7 +40,7 @@ def main() -> int:
             assert data["redirect"] == "formulario_datos.html"
             return data["user"]["id"]
 
-        test_user_id = runner.check("TC-M1-01", "[RF-C02] Registro de nuevo usuario paciente y cookie JWT", tc01)
+        test_user_id = runner.check("TC-M1-01", "[RF-C02/RNF-06] Validación clave fuerte (422) y registro paciente (201)", tc01)
 
         def tc02():
             c = ApiClient()
@@ -175,35 +179,24 @@ def main() -> int:
         runner.check("TC-M1-11", "[RF-D01/RF-C03] Login federado con Facebook (/api/auth/facebook)", tc11)
 
         def tc12():
-            nonlocal weak_user_id
             c = ApiClient()
-            st, data = c.post("/api/auth/register", {
-                "email": weak_email,
-                "password": "123456",
-                "confirmPassword": "123456",
-                "nombre": "Clave Debil QA",
-            })
-            if st == 201 and isinstance(data, dict) and data.get("user"):
-                weak_user_id = int(data["user"]["id"])
-            assert st == 422, f"NO CUMPLE RF-D02 (clave débil): aceptó '123456' con HTTP {st} en lugar de 422"
+            st_l, d_l = c.login("carlos.ramirez@gmail.com", "Paciente123!")
+            assert st_l == 200 and d_l.get("token"), f"Login falló: {st_l} {d_l}"
+            token = d_l["token"]
+            assert c.logout()[0] == 200
+            anon = ApiClient()
+            st_me, d_me = anon.get("/api/auth/me", extra_headers={"Cookie": f"centenario_token={token}"})
+            assert st_me == 401, f"NO CUMPLE RF-D02 (revocación JWT): cookie JWT previa a logout siguió devolviendo {st_me} ({d_me.get('user', {}).get('email')})"
 
-        runner.check("TC-M1-12", "[RF-D02/RNF-06] Rechazo de contraseña débil '123456' en registro (422)", tc12)
+        runner.check("TC-M1-12", "[RF-D02/RNF-06] Revocación de JWT en servidor tras logout (401)", tc12)
     finally:
-        cleanup_stmts: list[str] = []
         if test_user_id is not None:
-            cleanup_stmts.append(
+            run_db_cleanup(
                 f'$db->prepare("DELETE FROM notificaciones WHERE referencia_tipo = \'auth\' AND referencia_id = ?")->execute([{test_user_id}]);'
                 f'$db->prepare("DELETE FROM pacientes WHERE dni = ? OR usuario_id = ?")->execute(["{test_dni}", {test_user_id}]);'
                 f'$db->prepare("DELETE FROM usuarios WHERE id = ?")->execute([{test_user_id}]);'
                 f'$db->prepare("DELETE FROM auditoria_logs WHERE usuario_id = ? OR recurso_id = ?")->execute([{test_user_id}, "{test_dni}"]);'
             )
-        if weak_user_id is not None:
-            cleanup_stmts.append(
-                f'$db->prepare("DELETE FROM usuarios WHERE id = ?")->execute([{weak_user_id}]);'
-                f'$db->prepare("DELETE FROM auditoria_logs WHERE usuario_id = ?")->execute([{weak_user_id}]);'
-            )
-        if cleanup_stmts:
-            run_db_cleanup("".join(cleanup_stmts))
 
     return runner.summary()
 

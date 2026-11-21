@@ -11,7 +11,7 @@
 
 | ID | Requerimiento | Tipo | Caso de Prueba | Resultado Esperado |
 | :--- | :---: | :--- | :--- | :--- |
-| `TC-M1-01` | `RF-C02` | Positivo | Registro de usuario paciente (`POST /api/auth/register`) | `201`, rol `paciente`, cookie JWT HttpOnly, `redirect: formulario_datos.html` |
+| `TC-M1-01` | `RF-C02`, `RNF-06` | Validación / Positivo | Rechazo de contraseña débil (`422`) y registro de paciente (`POST /api/auth/register`) | `422` en `"123456"`; `201` con clave segura, cookie JWT HttpOnly y `redirect: formulario_datos.html` |
 | `TC-M1-02` | `RF-C02` | Negativo | Correo duplicado en registro | `409 Conflict`, `ok: false` |
 | `TC-M1-03` | `RF-C02`, `RF-B02` | Seguridad | Login con contraseña incorrecta | `401 Unauthorized` |
 | `TC-M1-04` | `RF-C02` | Positivo | Login válido + `GET /api/auth/me` + `logout` | `200`, `redirect: mis_citas.html`, sesión activa y cierre limpio |
@@ -22,7 +22,7 @@
 | `TC-M1-09` | `RF-B02`, `RF-B06`, `RNF-07` | Seguridad / ARCO | RBAC `GET /api/pacientes` (`403`) + revocar consentimiento (`PUT`) + anonimizar (`DELETE /api/perfil`) | `403` en listado, `200` ARCO y sesión invalidada (`401`) |
 | `TC-M1-10` | `RF-C01`, `RF-C14`, `RNF-10` | Smoke / Legal | Acceso HTTP `200` a vistas de inicio, acceso y legales | `200` en todas las vistas asignadas |
 | `TC-M1-11` | `RF-D01` (`RF-C03`) | Defecto (`NO CUMPLE`) | Login federado con Facebook (`POST /api/auth/facebook`) | **Esperado**: `200` creando/vinculando cuenta · **Actual**: `404` (endpoint no implementado) |
-| `TC-M1-12` | `RF-D02` (`RNF-06`) | Defecto (`NO CUMPLE`) | Registro con contraseña débil `"123456"` (`POST /api/auth/register`) | **Esperado**: `422` por política de complejidad · **Actual**: `201` (acepta clave débil) |
+| `TC-M1-12` | `RF-D02` (`RNF-06`) | Defecto (`NO CUMPLE`) | Revocación de JWT en servidor tras `POST /api/auth/logout` (reuso de cookie `centenario_token`) | **Esperado**: `401 Unauthorized` al reusar el token · **Actual**: `200` (JWT sin blacklist en servidor) |
 
 ### Verificaciones RNF Complementarias (Manuales / Herramientas)
 - `RNF-01`: Probar viewport `375px`, `768px`, `1366px` (menú hamburguesa ≤850px, sin scroll-x) y Lighthouse Usabilidad ≥90.

@@ -22,9 +22,17 @@ class ApiClient:
         self.cookies = http.cookiejar.CookieJar()
         self._opener = urllib.request.build_opener(urllib.request.HTTPCookieProcessor(self.cookies))
 
-    def request(self, path: str, method: str = "GET", body: dict[str, Any] | None = None) -> tuple[int, Any]:
+    def request(
+        self,
+        path: str,
+        method: str = "GET",
+        body: dict[str, Any] | None = None,
+        extra_headers: dict[str, str] | None = None,
+    ) -> tuple[int, Any]:
         data = json.dumps(body).encode("utf-8") if body is not None else None
         headers = {"Content-Type": "application/json"} if body is not None else {}
+        if extra_headers:
+            headers.update(extra_headers)
         req = urllib.request.Request(f"{self.base_url}{path}", data=data, headers=headers, method=method)
         try:
             with self._opener.open(req, timeout=10) as resp:
@@ -34,8 +42,8 @@ class ApiClient:
             raw = err.read().decode("utf-8", errors="replace")
             return err.code, self._parse(raw)
 
-    def get(self, path: str) -> tuple[int, Any]:
-        return self.request(path, "GET")
+    def get(self, path: str, extra_headers: dict[str, str] | None = None) -> tuple[int, Any]:
+        return self.request(path, "GET", extra_headers=extra_headers)
 
     def post(self, path: str, body: dict[str, Any] | None = None) -> tuple[int, Any]:
         return self.request(path, "POST", body)

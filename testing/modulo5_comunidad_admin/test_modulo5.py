@@ -112,6 +112,13 @@ def main() -> int:
         runner.check("TC-M5-08", "[RF-B06/RF-B07/RNF-09] Reportes KPIs, ventas y trazas de auditoría", tc08)
 
         def tc09():
+            st_inv, _ = adm.post("/api/campanas", {
+                "titulo": f"Campaña Fechas Invertidas QA {tag}",
+                "fecha_inicio": "2026-12-20 08:00:00",
+                "fecha_fin": "2026-12-01 08:00:00",
+                "cupos_totales": 20,
+            })
+            assert st_inv == 422, f"fecha_fin < fecha_inicio debe devolver 422, obtuvo {st_inv}"
             st_c, d_c = adm.post("/api/campanas", {
                 "titulo": f"Campaña QA {tag}",
                 "descripcion": "Campaña sintética de verificación CRUD",
@@ -124,7 +131,7 @@ def main() -> int:
             assert st_u == 200, f"Error actualizando campaña: {st_u}"
             return cid
 
-        created_campana_id = runner.check("TC-M5-09", "[RF-B07] CRUD admin de campañas de salud (POST y PUT)", tc09)
+        created_campana_id = runner.check("TC-M5-09", "[RF-B07] Validación fechas (422) y CRUD admin de campañas", tc09)
 
         def tc10():
             c = ApiClient()
@@ -135,20 +142,12 @@ def main() -> int:
         runner.check("TC-M5-10", "[RF-C11/RF-C12/RF-C13] Accesibilidad HTTP 200 de vistas comunidad y admin", tc10)
 
         def tc11():
-            nonlocal created_bad_campana_id
-            st, data = adm.post("/api/campanas", {
-                "titulo": f"Campaña Fechas Invertidas QA {tag}",
-                "descripcion": "fecha_fin anterior a fecha_inicio",
-                "fecha_inicio": "2026-12-20 08:00:00",
-                "fecha_fin": "2026-12-01 08:00:00",
-                "cupos_totales": 20,
-                "estado": "activa",
-            })
-            if st == 201 and isinstance(data, dict) and data.get("id"):
-                created_bad_campana_id = int(data["id"])
-            assert st == 422, f"NO CUMPLE RF-D09 (fechas invertidas en campaña): aceptó fecha_fin < fecha_inicio con HTTP {st}"
+            assert created_campana_id is not None
+            assert adm.put(f"/api/campanas/{created_campana_id}", {"cupos_ocupados": 20})[0] == 200
+            st, data = adm.put(f"/api/campanas/{created_campana_id}", {"cupos_totales": 5})
+            assert st in (409, 422), f"NO CUMPLE RF-D09 (coherencia de aforo): permitió bajar cupos_totales=5 con cupos_ocupados=20 (HTTP {st})"
 
-        runner.check("TC-M5-11", "[RF-D09/RF-B07] Rechazo de campaña con fecha_fin anterior a fecha_inicio (422)", tc11)
+        runner.check("TC-M5-11", "[RF-D09/RF-B07] Impedir reducir cupos_totales por debajo de cupos_ocupados (422)", tc11)
 
         def tc12():
             st, data = adm.put("/api/preguntas/999999", {"respuesta": "Respuesta a ID inexistente QA"})
