@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace App\Controllers;
+namespace App\Modules\Modulo5_ComunidadAdmin\Controllers;
 
 use App\Config\Database;
 use App\Core\AuditService;

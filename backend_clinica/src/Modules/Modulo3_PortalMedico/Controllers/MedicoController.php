@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace App\Controllers;
+namespace App\Modules\Modulo3_PortalMedico\Controllers;
 
 use App\Config\Database;
 use App\Core\AuditService;
