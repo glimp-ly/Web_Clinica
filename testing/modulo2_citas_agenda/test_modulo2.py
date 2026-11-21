@@ -148,6 +148,33 @@ def main() -> int:
                 assert st == 200, f"Vista {view} respondió {st}"
 
         runner.check("TC-M2-10", "[RF-C01/RF-C08] Accesibilidad HTTP 200 de vistas de citas y servicios", tc10)
+
+        def tc11():
+            past_payload = dict(base_payload, fecha_inicio="2020-01-15", hora_cita="09:00", turno="manana")
+            st, data = pac.post("/api/citas", past_payload)
+            if st == 201 and isinstance(data, dict) and data.get("cita"):
+                created_cita_ids.append(int(data["cita"]["id"]))
+                created_codigos.append(str(data["cita"]["codigo_cita"]))
+            assert st == 422, f"NO CUMPLE RF-D03 (fecha pasada): permitió agendar el 2020-01-15 con HTTP {st}"
+
+        runner.check("TC-M2-11", "[RF-D03/RF-C05] Bloqueo de reserva de cita en fecha pasada (422)", tc11)
+
+        def tc12():
+            assert cita is not None
+            med = ApiClient()
+            assert med.login("juan.perez@centenario.pe", "Medico123!")[0] == 200
+            st_dup, d_dup = med.post(f"/api/citas/{cita['id']}/derivar", {
+                "especialidad_id": 2,
+                "fecha_cita": reprog_date,
+                "hora_cita": "12:00",
+                "motivo": "Interconsulta duplicada en slot ya ocupado QA",
+            })
+            if st_dup == 201 and isinstance(d_dup, dict) and d_dup.get("id"):
+                created_cita_ids.append(int(d_dup["id"]))
+                created_codigos.append(str(d_dup["codigo_cita"]))
+            assert st_dup == 409, f"NO CUMPLE RF-D04 (solape en derivación): esperaba 409, obtuvo {st_dup}"
+
+        runner.check("TC-M2-12", "[RF-D04/RF-M07] Control de solape de agenda al derivar interconsulta (409)", tc12)
     finally:
         cleanup_stmts: list[str] = []
         if noshow_applied:

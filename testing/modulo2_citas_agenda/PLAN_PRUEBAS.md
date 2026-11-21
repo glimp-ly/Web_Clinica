@@ -21,6 +21,8 @@
 | `TC-M2-08` | `RF-M03`, `RF-M07` | Integración | Médico cambia estado `en_atencion` y crea derivación (`POST /derivar`) | `200` y `201` con cita `DER-YYYY-XXXXX` |
 | `TC-M2-09` | `RF-M03`, `RF-C06` | Regla de Negocio | Registro `no_show` (penalidad S/20) y cancelación válida >24h | `200` en ambos |
 | `TC-M2-10` | `RF-C01`, `RF-C08` | Smoke | Vistas `agendar_cita.html`, `mis_citas.html`, `especialidades.html`, `Servicios.html` | `200` en todas las vistas |
+| `TC-M2-11` | `RF-D03` (`RF-C05`) | Defecto (`NO CUMPLE`) | Reserva de cita en fecha pasada (`2020-01-15`) | **Esperado**: `422` rechazando fecha pasada · **Actual**: `201` (crea la cita) |
+| `TC-M2-12` | `RF-D04` (`RF-M07`) | Defecto (`NO CUMPLE`) | Derivación a interconsulta en horario ya ocupado del médico destino | **Esperado**: `409 Conflict` · **Actual**: `201` (permite doble reserva) |
 
 ### Verificaciones RNF Complementarias
 - `RNF-04`: Medir latencia API `p95 < 500ms` sobre `POST /api/citas` y `GET /api/citas/ocupadas` (ej. k6).

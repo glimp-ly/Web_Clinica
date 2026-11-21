@@ -17,9 +17,12 @@ def main() -> int:
     print(f"\n=== {runner.module_title} ===")
 
     created_disp_id: int | None = None
+    created_bad_disp_id: int | None = None
     created_hc_id: int | None = None
     created_receta_id: int | None = None
     created_receta_code: str | None = None
+    created_bad_receta_id: int | None = None
+    created_bad_receta_code: str | None = None
     created_medico_id: int | None = None
     tag = uuid.uuid4().hex[:5]
     test_med_email = f"dr.qa.{tag}@centenario.test"
@@ -163,10 +166,47 @@ def main() -> int:
                 assert st == 200, f"Vista {view} respondió {st}"
 
         runner.check("TC-M3-10", "[RF-M01/RF-C08] Accesibilidad HTTP 200 de /medico, medico.html y staff", tc10)
+
+        def tc11():
+            nonlocal created_bad_disp_id
+            st, data = med.post("/api/medicos/mi-disponibilidad", {
+                "fecha": block_date,
+                "turno": "tarde",
+                "hora_inicio": "18:00:00",
+                "hora_fin": "08:00:00",
+                "estado": "bloqueado",
+                "motivo": f"Rango invertido QA {tag}",
+            })
+            if st == 200:
+                _, d_get = med.get("/api/medicos/mi-disponibilidad")
+                match = [b for b in d_get.get("disponibilidad", []) if b["motivo"] == f"Rango invertido QA {tag}"]
+                if match:
+                    created_bad_disp_id = int(match[0]["id"])
+            assert st == 422, f"NO CUMPLE RF-D05 (hora_inicio >= hora_fin): aceptó 18:00-08:00 con HTTP {st}"
+
+        runner.check("TC-M3-11", "[RF-D05/RF-M02] Rechazo de rango horario invertido en disponibilidad (422)", tc11)
+
+        def tc12():
+            nonlocal created_bad_receta_id, created_bad_receta_code
+            st, data = med.post("/api/recetas", {
+                "dni_paciente": "71234561",
+                "cita_id": 999999,
+                "diagnostico": "Receta cita inexistente QA",
+                "indicaciones": "Prueba integridad referencial",
+                "medicamentos": [{"nombre": "Paracetamol 500mg", "dosis": "1 c/8h"}],
+            })
+            if st == 201 and isinstance(data, dict) and data.get("id"):
+                created_bad_receta_id = int(data["id"])
+                created_bad_receta_code = str(data["codigo_receta"])
+            assert st in (404, 422), f"NO CUMPLE RF-D06 (cita_id inexistente): aceptó cita_id=999999 con HTTP {st}"
+
+        runner.check("TC-M3-12", "[RF-D06/RF-M05] Validación de existencia de cita_id al emitir receta (404/422)", tc12)
     finally:
         cleanup_stmts: list[str] = []
         if created_disp_id:
             cleanup_stmts.append(f'$db->prepare("DELETE FROM medico_disponibilidad WHERE id = ?")->execute([{created_disp_id}]);')
+        if created_bad_disp_id:
+            cleanup_stmts.append(f'$db->prepare("DELETE FROM medico_disponibilidad WHERE id = ?")->execute([{created_bad_disp_id}]);')
         if created_hc_id:
             cleanup_stmts.append(f'$db->prepare("DELETE FROM historias_clinicas WHERE id = ?")->execute([{created_hc_id}]);')
             cleanup_stmts.append(f'$db->prepare("DELETE FROM auditoria_logs WHERE recurso = \'historias_clinicas\' AND recurso_id = ?")->execute(["{created_hc_id}"]);')
@@ -175,6 +215,11 @@ def main() -> int:
             cleanup_stmts.append(f'$db->prepare("DELETE FROM recetas WHERE id = ?")->execute([{created_receta_id}]);')
         if created_receta_code:
             cleanup_stmts.append(f'$db->prepare("DELETE FROM auditoria_logs WHERE recurso_id = ?")->execute(["{created_receta_code}"]);')
+        if created_bad_receta_id:
+            cleanup_stmts.append(f'$db->prepare("DELETE FROM notificaciones WHERE referencia_tipo = \'receta\' AND referencia_id = ?")->execute([{created_bad_receta_id}]);')
+            cleanup_stmts.append(f'$db->prepare("DELETE FROM recetas WHERE id = ?")->execute([{created_bad_receta_id}]);')
+        if created_bad_receta_code:
+            cleanup_stmts.append(f'$db->prepare("DELETE FROM auditoria_logs WHERE recurso_id = ?")->execute(["{created_bad_receta_code}"]);')
         if created_medico_id:
             cleanup_stmts.append(f'$db->prepare("DELETE FROM medicos WHERE id = ?")->execute([{created_medico_id}]);')
             cleanup_stmts.append(f'$db->prepare("DELETE FROM usuarios WHERE email = ?")->execute(["{test_med_email}"]);')

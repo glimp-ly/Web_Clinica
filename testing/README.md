@@ -1,18 +1,18 @@
 # Plan de Distribución, Trazabilidad ERS v2 y Testing — 5 Módulos Equivalentes
 
-El sistema **Clínica Centenario del Norte** está dividido en **5 módulos funcionales equivalentes e independientes** (`backend_clinica/src/Modules/` + `testing/modulo*/`), repartiendo de forma equilibrada **los 42 requerimientos de [`REQUERIMIENTOS.md`](../REQUERIMIENTOS.md)** (`15 RF-C`, `8 RF-M`, `7 RF-B` y `12 RNF`) y **50 casos de prueba automatizados (10 por integrante)**.
+El sistema **Clínica Centenario del Norte** está dividido en **5 módulos funcionales equivalentes e independientes** (`backend_clinica/src/Modules/` + `testing/modulo*/`), repartiendo de forma equilibrada **los 42 requerimientos base + 10 requerimientos de defecto (`RF-D01`–`RF-D10`) de [`REQUERIMIENTOS.md`](../REQUERIMIENTOS.md)** y **60 casos de prueba automatizados (12 por integrante: 10 `CUMPLE` + 2 `NO CUMPLE` reproducibles para el reporte de errores del curso)**.
 
 ---
 
 ## 1. Reparto Equitativo por Integrante
 
-| Integrante | Módulo | Backend (`src/Modules/`) | Testing (`testing/`) | Requerimientos Asignados (`REQUERIMIENTOS.md`) | Casos Auto |
+| Integrante | Módulo | Backend (`src/Modules/`) | Testing (`testing/`) | Requerimientos Asignados (`REQUERIMIENTOS.md`) | Casos Auto (`PASS` / `DEFECTOS`) |
 | :---: | :--- | :--- | :--- | :--- | :---: |
-| **1** | **Acceso, Perfil y Pacientes** | `Modulo1_AccesoPacientes/` | `modulo1_acceso_pacientes/` | `RF-C01`, `RF-C02`, `RF-C03`, `RF-C04`, `RF-C14`, `RF-C15`, `RF-B02`, `RF-B03`, `RF-B06`, `RNF-01`, `RNF-02`, `RNF-06`, `RNF-07`, `RNF-10` | 10 |
-| **2** | **Citas y Agenda** | `Modulo2_CitasAgenda/` | `modulo2_citas_agenda/` | `RF-C05`, `RF-C06`, `RF-C07`, `RF-C08` (esp./servicios), `RF-M03`, `RF-M07`, `RF-B01`, `RF-B04`, `RNF-04`, `RNF-08` | 10 |
-| **3** | **Portal Médico, Historia y Recetas** | `Modulo3_PortalMedico/` | `modulo3_portal_medico/` | `RF-C08` (staff), `RF-M01`, `RF-M02`, `RF-M04`, `RF-M05` (recetas), `RF-M08`, `RF-B02`, `RF-B07` (médicos), `RNF-06`, `RNF-07`, `RNF-08` | 10 |
-| **4** | **Farmacia y Laboratorio** | `Modulo4_FarmaciaLaboratorio/` | `modulo4_farmacia_laboratorio/` | `RF-C09`, `RF-C10`, `RF-M05` (órdenes lab), `RF-M06`, `RF-B04` (stock), `RF-B05`, `RF-B07` (inventario), `RNF-03`, `RNF-04`, `RNF-10` | 10 |
-| **5** | **Comunidad y Administración** | `Modulo5_ComunidadAdmin/` | `modulo5_comunidad_admin/` | `RF-C11`, `RF-C12`, `RF-C13`, `RF-B01`, `RF-B04` (cupos), `RF-B06` (auditoría), `RF-B07` (campañas/reportes), `RNF-05`, `RNF-09`, `RNF-11`, `RNF-12` | 10 |
+| **1** | **Acceso, Perfil y Pacientes** | `Modulo1_AccesoPacientes/` | `modulo1_acceso_pacientes/` | `RF-C01..04`, `RF-C14`, `RF-C15`, `RF-B02/03/06`, `RNF-01/02/06/07/10`, **`RF-D01`**, **`RF-D02`** | 12 (10 / 2) |
+| **2** | **Citas y Agenda** | `Modulo2_CitasAgenda/` | `modulo2_citas_agenda/` | `RF-C05..08`, `RF-M03`, `RF-M07`, `RF-B01/04`, `RNF-04/08`, **`RF-D03`**, **`RF-D04`** | 12 (10 / 2) |
+| **3** | **Portal Médico, Historia y Recetas** | `Modulo3_PortalMedico/` | `modulo3_portal_medico/` | `RF-C08`, `RF-M01/02/04/05/08`, `RF-B02/07`, `RNF-06/07/08`, **`RF-D05`**, **`RF-D06`** | 12 (10 / 2) |
+| **4** | **Farmacia y Laboratorio** | `Modulo4_FarmaciaLaboratorio/` | `modulo4_farmacia_laboratorio/` | `RF-C09/10`, `RF-M05/06`, `RF-B04/05/07`, `RNF-03/04/10`, **`RF-D07`**, **`RF-D08`** | 12 (10 / 2) |
+| **5** | **Comunidad y Administración** | `Modulo5_ComunidadAdmin/` | `modulo5_comunidad_admin/` | `RF-C11..13`, `RF-B01/04/06/07`, `RNF-05/09/11/12`, **`RF-D09`**, **`RF-D10`** | 12 (10 / 2) |
 
 ---
 

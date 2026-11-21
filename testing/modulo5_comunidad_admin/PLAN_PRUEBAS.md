@@ -21,6 +21,8 @@
 | `TC-M5-08` | `RF-B06`, `RF-B07`, `RNF-09` | Observabilidad | Dashboard admin `GET /api/reportes/resumen` | `200`, métricas de citas/ventas y trazas en `auditoria` |
 | `TC-M5-09` | `RF-B07` | CRUD Admin | Creación y actualización de campaña (`POST/PUT /api/campanas`) | `201` y `200` |
 | `TC-M5-10` | `RF-C11`, `RF-C12`, `RF-C13` | Smoke | Acceso HTTP `200` a `campañas.html`, `Blog.html`, `faq.html`, `Contacto.html`, `admin.html`, `/admin` | `200` en todas las vistas |
+| `TC-M5-11` | `RF-D09` (`RF-B07`) | Defecto (`NO CUMPLE`) | Creación de campaña con `fecha_fin < fecha_inicio` | **Esperado**: `422` · **Actual**: `201` (crea campaña con fechas invertidas) |
+| `TC-M5-12` | `RF-D10` (`RF-C12`) | Defecto (`NO CUMPLE`) | Respuesta admin a pregunta FAQ inexistente (`PUT /api/preguntas/999999`) | **Esperado**: `404` · **Actual**: `200` (responde éxito sin verificar existencia) |
 
 ### Verificaciones RNF Complementarias
 - `RNF-05`: Desactivar temporalmente CDN externo y validar que el flujo crítico no se rompe.

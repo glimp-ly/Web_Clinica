@@ -21,6 +21,8 @@
 | `TC-M1-08` | `RNF-06` | Seguridad | Rate-limit de login tras 5 intentos fallidos | Intentos 1–4 `401`; intento 5 devuelve `429` con bloqueo temporal |
 | `TC-M1-09` | `RF-B02`, `RF-B06`, `RNF-07` | Seguridad / ARCO | RBAC `GET /api/pacientes` (`403`) + revocar consentimiento (`PUT`) + anonimizar (`DELETE /api/perfil`) | `403` en listado, `200` ARCO y sesión invalidada (`401`) |
 | `TC-M1-10` | `RF-C01`, `RF-C14`, `RNF-10` | Smoke / Legal | Acceso HTTP `200` a vistas de inicio, acceso y legales | `200` en todas las vistas asignadas |
+| `TC-M1-11` | `RF-D01` (`RF-C03`) | Defecto (`NO CUMPLE`) | Login federado con Facebook (`POST /api/auth/facebook`) | **Esperado**: `200` creando/vinculando cuenta · **Actual**: `404` (endpoint no implementado) |
+| `TC-M1-12` | `RF-D02` (`RNF-06`) | Defecto (`NO CUMPLE`) | Registro con contraseña débil `"123456"` (`POST /api/auth/register`) | **Esperado**: `422` por política de complejidad · **Actual**: `201` (acepta clave débil) |
 
 ### Verificaciones RNF Complementarias (Manuales / Herramientas)
 - `RNF-01`: Probar viewport `375px`, `768px`, `1366px` (menú hamburguesa ≤850px, sin scroll-x) y Lighthouse Usabilidad ≥90.

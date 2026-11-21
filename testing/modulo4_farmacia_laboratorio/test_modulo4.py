@@ -19,6 +19,8 @@ def main() -> int:
     bought_products: list[int] = []
     created_orden_id: int | None = None
     created_orden_code: str | None = None
+    created_bad_orden_id: int | None = None
+    created_bad_orden_code: str | None = None
 
     try:
         def tc01():
@@ -155,6 +157,39 @@ def main() -> int:
                 assert adm.get(view)[0] == 200, f"Vista {view} no devolvió 200"
 
         runner.check("TC-M4-10", "[RF-B07/RNF-10] Gestión admin de inventario farmacia y vistas HTTP 200", tc10)
+
+        def tc11():
+            assert receta_prod is not None
+            st2, data2 = pac.post("/api/pedidos", {
+                "dni": "71234561",
+                "nombre": "Carlos Ramírez",
+                "metodo_pago": "yape",
+                "codigo_receta": "REC-2026-001",
+                "usar_eps": False,
+                "items": [{"id": receta_prod["id"], "quantity": 1}],
+            })
+            if st2 == 201 and isinstance(data2, dict) and data2.get("boleta"):
+                created_pedido_ids.append(int(data2["boleta"]["pedido_id"]))
+                created_boletas.append(str(data2["boleta"]["codigo_boleta"]))
+                bought_products.append(int(receta_prod["id"]))
+            assert st2 in (409, 422), f"NO CUMPLE RF-D07 (reutilización de receta): permitió reusar REC-2026-001 con HTTP {st2}"
+
+        runner.check("TC-M4-11", "[RF-D07/RF-C09] Bloqueo de reutilización de receta ya dispensada (409/422)", tc11)
+
+        def tc12():
+            nonlocal created_bad_orden_id, created_bad_orden_code
+            st, data = pac.post("/api/ordenes-lab", {
+                "dni_paciente": "71234561",
+                "nombre_paciente": "Carlos Alberto Ramírez Soto",
+                "metodo_pago": "yape",
+                "analisis": [{"nombre": "Glucosa", "cantidad": -2}],
+            })
+            if st == 201 and isinstance(data, dict) and data.get("orden"):
+                created_bad_orden_id = int(data["orden"]["id"])
+                created_bad_orden_code = str(data["orden"]["codigo_orden"])
+            assert st == 422, f"NO CUMPLE RF-D08 (cantidad negativa en lab): creó orden con total={data.get('orden', {}).get('total')} y HTTP {st}"
+
+        runner.check("TC-M4-12", "[RF-D08/RF-C10] Rechazo de cantidad negativa/cero en orden de laboratorio (422)", tc12)
     finally:
         cleanup_stmts: list[str] = []
         for pid in bought_products:
@@ -167,6 +202,10 @@ def main() -> int:
             cleanup_stmts.append(f'$db->prepare("DELETE FROM ordenes_laboratorio WHERE id = ?")->execute([{created_orden_id}]);')
         if created_orden_code:
             cleanup_stmts.append(f'$db->prepare("DELETE FROM auditoria_logs WHERE recurso_id = ?")->execute(["{created_orden_code}"]);')
+        if created_bad_orden_id:
+            cleanup_stmts.append(f'$db->prepare("DELETE FROM ordenes_laboratorio WHERE id = ?")->execute([{created_bad_orden_id}]);')
+        if created_bad_orden_code:
+            cleanup_stmts.append(f'$db->prepare("DELETE FROM auditoria_logs WHERE recurso_id = ?")->execute(["{created_bad_orden_code}"]);')
         if cleanup_stmts:
             run_db_cleanup("".join(cleanup_stmts))
 

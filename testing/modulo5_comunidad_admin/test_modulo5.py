@@ -19,6 +19,7 @@ def main() -> int:
     test_dni = "95" + str(int(tag, 16) % 1000000).zfill(6)
     test_campana_id: int | None = None
     created_campana_id: int | None = None
+    created_bad_campana_id: int | None = None
     created_faq_id: int | None = None
     created_contacto_id: int | None = None
 
@@ -132,6 +133,28 @@ def main() -> int:
                 assert st == 200, f"Vista {view} respondió {st}"
 
         runner.check("TC-M5-10", "[RF-C11/RF-C12/RF-C13] Accesibilidad HTTP 200 de vistas comunidad y admin", tc10)
+
+        def tc11():
+            nonlocal created_bad_campana_id
+            st, data = adm.post("/api/campanas", {
+                "titulo": f"Campaña Fechas Invertidas QA {tag}",
+                "descripcion": "fecha_fin anterior a fecha_inicio",
+                "fecha_inicio": "2026-12-20 08:00:00",
+                "fecha_fin": "2026-12-01 08:00:00",
+                "cupos_totales": 20,
+                "estado": "activa",
+            })
+            if st == 201 and isinstance(data, dict) and data.get("id"):
+                created_bad_campana_id = int(data["id"])
+            assert st == 422, f"NO CUMPLE RF-D09 (fechas invertidas en campaña): aceptó fecha_fin < fecha_inicio con HTTP {st}"
+
+        runner.check("TC-M5-11", "[RF-D09/RF-B07] Rechazo de campaña con fecha_fin anterior a fecha_inicio (422)", tc11)
+
+        def tc12():
+            st, data = adm.put("/api/preguntas/999999", {"respuesta": "Respuesta a ID inexistente QA"})
+            assert st == 404, f"NO CUMPLE RF-D10 (FAQ inexistente): devolvió HTTP {st} ({data}) en lugar de 404"
+
+        runner.check("TC-M5-12", "[RF-D10/RF-C12] Error 404 al responder pregunta FAQ inexistente (ID 999999)", tc12)
     finally:
         cleanup_stmts: list[str] = []
         if test_campana_id:
@@ -140,9 +163,13 @@ def main() -> int:
         if created_campana_id:
             cleanup_stmts.append(f'$db->prepare("DELETE FROM campanas WHERE id = ?")->execute([{created_campana_id}]);')
             cleanup_stmts.append(f'$db->prepare("DELETE FROM auditoria_logs WHERE recurso = \'campanas\' AND recurso_id = ?")->execute(["{created_campana_id}"]);')
+        if created_bad_campana_id:
+            cleanup_stmts.append(f'$db->prepare("DELETE FROM campanas WHERE id = ?")->execute([{created_bad_campana_id}]);')
+            cleanup_stmts.append(f'$db->prepare("DELETE FROM auditoria_logs WHERE recurso = \'campanas\' AND recurso_id = ?")->execute(["{created_bad_campana_id}"]);')
         if created_faq_id:
             cleanup_stmts.append(f'$db->prepare("DELETE FROM preguntas_faq WHERE id = ?")->execute([{created_faq_id}]);')
             cleanup_stmts.append(f'$db->prepare("DELETE FROM auditoria_logs WHERE recurso = \'preguntas_faq\' AND recurso_id = ?")->execute(["{created_faq_id}"]);')
+        cleanup_stmts.append('$db->prepare("DELETE FROM auditoria_logs WHERE recurso = \'preguntas_faq\' AND recurso_id = ?")->execute(["999999"]);')
         if created_contacto_id:
             cleanup_stmts.append(f'$db->prepare("DELETE FROM contactos_afiliacion WHERE id = ?")->execute([{created_contacto_id}]);')
         if cleanup_stmts:

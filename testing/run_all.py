@@ -26,7 +26,7 @@ def main() -> int:
     print("\n================ RESUMEN GLOBAL (5 MÓDULOS) ================")
     failed = 0
     for name, code in results:
-        status = "PASS" if code == 0 else "FAIL"
+        status = "PASS" if code == 0 else "CON DEFECTOS DETECTADOS (NO CUMPLE)"
         if code != 0:
             failed += 1
         print(f"  [{status}] {name}")

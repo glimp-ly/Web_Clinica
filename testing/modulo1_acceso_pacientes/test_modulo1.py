@@ -17,8 +17,10 @@ def main() -> int:
 
     tag = uuid.uuid4().hex[:6]
     test_email = f"qa.m1.{tag}@centenario.test"
+    weak_email = f"qa.weak.{tag}@centenario.test"
     test_dni = "89" + str(int(tag, 16) % 1000000).zfill(6)
     test_user_id: int | None = None
+    weak_user_id: int | None = None
 
     try:
         def tc01():
@@ -160,14 +162,48 @@ def main() -> int:
                 assert st == 200, f"Vista {view} respondió {st}"
 
         runner.check("TC-M1-10", "[RF-C01/RF-C14/RNF-10] Accesibilidad HTTP 200 de vistas de acceso y legales", tc10)
+
+        def tc11():
+            c = ApiClient()
+            st, data = c.post("/api/auth/facebook", {
+                "email": f"fb.{tag}@centenario.test",
+                "nombre": "Usuario Facebook QA",
+                "facebook_id": f"fb_{tag}",
+            })
+            assert st == 200 and data.get("ok") is True, f"NO CUMPLE RF-D01 (OAuth Facebook): esperaba 200, obtuvo {st} {data}"
+
+        runner.check("TC-M1-11", "[RF-D01/RF-C03] Login federado con Facebook (/api/auth/facebook)", tc11)
+
+        def tc12():
+            nonlocal weak_user_id
+            c = ApiClient()
+            st, data = c.post("/api/auth/register", {
+                "email": weak_email,
+                "password": "123456",
+                "confirmPassword": "123456",
+                "nombre": "Clave Debil QA",
+            })
+            if st == 201 and isinstance(data, dict) and data.get("user"):
+                weak_user_id = int(data["user"]["id"])
+            assert st == 422, f"NO CUMPLE RF-D02 (clave débil): aceptó '123456' con HTTP {st} en lugar de 422"
+
+        runner.check("TC-M1-12", "[RF-D02/RNF-06] Rechazo de contraseña débil '123456' en registro (422)", tc12)
     finally:
+        cleanup_stmts: list[str] = []
         if test_user_id is not None:
-            run_db_cleanup(
+            cleanup_stmts.append(
                 f'$db->prepare("DELETE FROM notificaciones WHERE referencia_tipo = \'auth\' AND referencia_id = ?")->execute([{test_user_id}]);'
                 f'$db->prepare("DELETE FROM pacientes WHERE dni = ? OR usuario_id = ?")->execute(["{test_dni}", {test_user_id}]);'
                 f'$db->prepare("DELETE FROM usuarios WHERE id = ?")->execute([{test_user_id}]);'
                 f'$db->prepare("DELETE FROM auditoria_logs WHERE usuario_id = ? OR recurso_id = ?")->execute([{test_user_id}, "{test_dni}"]);'
             )
+        if weak_user_id is not None:
+            cleanup_stmts.append(
+                f'$db->prepare("DELETE FROM usuarios WHERE id = ?")->execute([{weak_user_id}]);'
+                f'$db->prepare("DELETE FROM auditoria_logs WHERE usuario_id = ?")->execute([{weak_user_id}]);'
+            )
+        if cleanup_stmts:
+            run_db_cleanup("".join(cleanup_stmts))
 
     return runner.summary()
 

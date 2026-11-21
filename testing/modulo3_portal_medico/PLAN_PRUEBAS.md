@@ -21,6 +21,8 @@
 | `TC-M3-08` | `RF-M05` | Positivo | Emisión y consulta de receta digital (`POST/GET /api/recetas`) | `201` con código `REC-YYYY-XXXXX` visible en consulta |
 | `TC-M3-09` | `RF-B07`, `RF-B02` | Seguridad / CRUD | Médico bloqueado (`403`) vs Admin CRUD `/api/medicos` (`POST/PUT/DELETE`) | `403` para médico; `201`/`200` para admin |
 | `TC-M3-10` | `RF-M01`, `RF-C08` | Smoke | Acceso HTTP `200` a `/medico`, `/medico.html`, `/staff_medico.html` | `200` en todas las rutas |
+| `TC-M3-11` | `RF-D05` (`RF-M02`) | Defecto (`NO CUMPLE`) | Registro de disponibilidad con rango invertido (`18:00` a `08:00`) | **Esperado**: `422` (`hora_inicio < hora_fin`) · **Actual**: `200` (guarda rango inválido) |
+| `TC-M3-12` | `RF-D06` (`RF-M05`) | Defecto (`NO CUMPLE`) | Emisión de receta con `cita_id: 999999` inexistente | **Esperado**: `404`/`422` · **Actual**: `201` (no valida existencia de la cita) |
 
 ### Verificaciones RNF Complementarias
 - `RNF-08`: Verificar en `js/staff_medico.js` una sola definición de `renderDoctors` y búsqueda `<200ms`.

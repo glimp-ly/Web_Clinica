@@ -21,6 +21,8 @@
 | `TC-M4-08` | `RF-C10`, `RF-M06` | Positivo | Publicación de resultado por médico (`PUT /api/ordenes-lab/{id}`) | `200`, estado `publicado` |
 | `TC-M4-09` | `RF-C10`, `RF-M06` | Seguridad / RBAC | Consulta `GET /api/resultados/{codigo}`: anónimo (`403`), titular (`200`), médico tratante (`200`) | Acceso restringido y auditado |
 | `TC-M4-10` | `RF-B07`, `RNF-10` | Admin / Smoke | Actualización admin `PUT /api/productos/{id}` (`200`) y vistas `farmacia.html` / `Laboratorio.html` (`200`) | `200` en todas las comprobaciones |
+| `TC-M4-11` | `RF-D07` (`RF-C09`) | Defecto (`NO CUMPLE`) | Reutilización de receta digital `REC-2026-001` en una segunda compra | **Esperado**: `409`/`422` (receta ya dispensada) · **Actual**: `201` (permite reutilizarla) |
+| `TC-M4-12` | `RF-D08` (`RF-C10`) | Defecto (`NO CUMPLE`) | Orden de laboratorio con cantidad negativa (`cantidad: -2`) | **Esperado**: `422` · **Actual**: `201` (genera orden con total negativo) |
 
 ### Verificaciones RNF Complementarias
 - `RNF-03`: Lighthouse rendimiento ≥85, tamaño de página <1.5MB y búsqueda instantánea <200ms en vitrina farmacia/laboratorio.
