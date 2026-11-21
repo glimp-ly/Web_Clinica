@@ -15,16 +15,26 @@ Web_Clinica/
 ├── USUARIOS_PRUEBA.md        # Cuentas precargadas de prueba (credenciales y Google OAuth) y datos demo
 ├── database/
 │   └── schema.sql            # Esquema completo MariaDB (19 tablas en test_clinica + seed data)
-├── backend_clinica/          # Backend PHP 8.3 desacoplado (arquitectura modular por capas)
+├── backend_clinica/          # Backend PHP 8.3 desacoplado en 5 módulos funcionales
 │   ├── config/
 │   │   └── database.php      # Conexión PDO MariaDB (unix socket / host)
 │   ├── public/
 │   │   ├── .htaccess         # Reescritura de rutas /api/* hacia public/index.php
 │   │   └── index.php         # Front controller / autoloader PSR-4 (zona horaria America/Lima)
 │   └── src/
-│       ├── Router.php        # Enrutador REST hacia controladores de dominio
-│       ├── Core/             # Request, Response, JwtAuth (HS256 + cookies HttpOnly), AuditService
-│       └── Controllers/      # Auth, Perfil, Paciente, Especialidad, Medico, Cita, Receta, Farmacia, Laboratorio, Campana, AtencionPublica y ReporteController
+│       ├── Router.php        # Enrutador maestro que delega en los 5 módulos
+│       ├── Core/             # Request, Response, JwtAuth, AuditService, ModuleRoutesInterface
+│       └── Modules/
+│           ├── Modulo1_AccesoPacientes/     # Auth, Perfil/ARCO y Fichas de Pacientes
+│           ├── Modulo2_CitasAgenda/         # Especialidades, Disponibilidad y Citas
+│           ├── Modulo3_PortalMedico/        # Staff, Agenda Médica, Historia CIE-10 y Recetas
+│           ├── Modulo4_FarmaciaLaboratorio/ # Farmacia/EPS y Laboratorio/Resultados
+│           └── Modulo5_ComunidadAdmin/      # Campañas, FAQ, Afiliaciones, Reportes y Health
+├── testing/                  # Reparto del proyecto en 5 módulos equivalentes de QA/Testing
+│   ├── README.md             # Guía de reparto para los 5 integrantes del grupo
+│   ├── run_all.py            # Ejecutor consolidado de las 5 suites
+│   ├── common/api_client.py  # Cliente HTTP/JWT compartido
+│   └── modulo1..5_*/         # PLAN_PRUEBAS.md + suite ejecutable independiente por módulo
 └── frontend_clinica/         # Frontend web 100% estático (HTML, CSS, JS e imágenes)
     ├── .htaccess             # Reescritura amigable /medico y /admin
     ├── css/
